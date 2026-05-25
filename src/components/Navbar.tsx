@@ -15,25 +15,15 @@ const links = [
 ] as const;
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { count, open: openCart } = useCart();
   const path = useRouterState({ select: (s) => s.location.pathname });
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => setOpen(false), [path]);
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled ? "glass shadow-[0_4px_30px_-12px_rgba(8,20,46,0.15)]" : "bg-transparent"
-      }`}
+      className="sticky top-0 z-50 bg-white shadow-[0_4px_30px_-12px_rgba(8,20,46,0.15)]"
     >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
