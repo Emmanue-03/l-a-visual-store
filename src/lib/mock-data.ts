@@ -122,7 +122,30 @@ export const testimonials = [
   { name: "Martín L.", text: "Envío rápido y todo llegó como en las fotos. Vuelvo a comprar seguro.", rating: 5 },
 ];
 
-export const WHATSAPP_URL = "https://wa.me/595000000000?text=Hola%20L%26A%20Multiventas";
+export const WHATSAPP_PHONE = "595981625726";
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("Hola L&A Multiventas")}`;
 
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat("es-PY", { style: "currency", currency: "PYG", maximumFractionDigits: 0 }).format(n);
+
+export const createCheckoutWhatsAppUrl = (
+  items: { product: Product; qty: number }[],
+  shipping = 0
+) => {
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.qty, 0);
+  const total = subtotal + shipping;
+  const lines = items.map(
+    ({ product, qty }) => `- ${qty} x ${product.name}: ${formatPrice(product.price * qty)}`
+  );
+  const message = [
+    "Hola L&A Multiventas, quiero finalizar esta compra:",
+    "",
+    ...lines,
+    "",
+    `Subtotal: ${formatPrice(subtotal)}`,
+    shipping > 0 ? `Envio estimado: ${formatPrice(shipping)}` : null,
+    `Total: ${formatPrice(total)}`,
+  ].filter(Boolean).join("\n");
+
+  return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+};

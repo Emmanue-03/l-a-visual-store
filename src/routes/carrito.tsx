@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ShieldCheck, Truck, MessageCircle, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import { formatPrice, WHATSAPP_URL } from "@/lib/mock-data";
+import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/carrito")({
   component: CartPage,
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/carrito")({
 function CartPage() {
   const { items, total, setQty, remove } = useCart();
   const shipping = items.length ? 25000 : 0;
+  const checkoutUrl = createCheckoutWhatsAppUrl(items, shipping);
 
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">
@@ -65,12 +66,11 @@ function CartPage() {
                   <span className="font-display text-2xl font-bold text-brand-royal">{formatPrice(total + shipping)}</span>
                 </div>
               </div>
-              <button className="mt-5 w-full rounded-xl bg-brand-royal py-3 font-semibold text-white btn-glow hover:opacity-90">Finalizar compra</button>
-              <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 font-semibold text-white hover:bg-emerald-600">
-                <MessageCircle className="h-4 w-4" /> Comprar por WhatsApp
+              <a href={checkoutUrl} target="_blank" rel="noreferrer" className="mt-5 flex w-full items-center justify-center rounded-xl bg-brand-royal py-3 font-semibold text-white btn-glow hover:opacity-90">
+                Finalizar compra
               </a>
               <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                También podés cerrar tu pedido hablando directo con nosotros.
+                Al finalizar te derivamos a WhatsApp con el detalle del pedido.
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-brand-soft/50 p-5 space-y-3 text-sm">

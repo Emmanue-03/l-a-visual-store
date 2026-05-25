@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, ShoppingCart, MessageCircle, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
-import { products, formatPrice, WHATSAPP_URL } from "@/lib/mock-data";
+import { Star, ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
+import { products, formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -110,10 +110,6 @@ function ProductDetail() {
               <ShoppingCart className="h-4 w-4" /> Agregar al carrito
             </button>
           </div>
-          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold text-white hover:bg-emerald-600">
-            <MessageCircle className="h-4 w-4" /> Comprar por WhatsApp
-          </a>
-
           <div className="mt-6 grid grid-cols-3 gap-3">
             {[
               { i: Headphones, t: "Atención personalizada" },

@@ -1,10 +1,10 @@
-import { X, Minus, Plus, Trash2, MessageCircle, ArrowRight, ShoppingBag } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import { formatPrice, WHATSAPP_URL } from "@/lib/mock-data";
+import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
 
 export function CartDrawer() {
   const { isOpen, close, items, total, setQty, remove } = useCart();
+  const checkoutUrl = createCheckoutWhatsAppUrl(items);
 
   return (
     <>
@@ -77,14 +77,11 @@ export function CartDrawer() {
               <span className="font-display font-bold text-brand-deep">Total</span>
               <span className="font-display text-xl font-bold text-brand-royal">{formatPrice(total)}</span>
             </div>
-            <Link onClick={close} to="/carrito" className="flex items-center justify-center gap-2 rounded-xl bg-brand-royal px-4 py-3 font-semibold text-white btn-glow hover:opacity-90">
+            <a href={checkoutUrl} target="_blank" rel="noreferrer" onClick={close} className="flex items-center justify-center gap-2 rounded-xl bg-brand-royal px-4 py-3 font-semibold text-white btn-glow hover:opacity-90">
               Finalizar compra <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white hover:bg-emerald-600">
-              <MessageCircle className="h-4 w-4" /> Comprar por WhatsApp
             </a>
             <p className="text-center text-[11px] text-muted-foreground">
-              También podés cerrar tu pedido hablando directo con nosotros.
+              Al finalizar te derivamos a WhatsApp con el detalle del pedido.
             </p>
           </div>
         )}
