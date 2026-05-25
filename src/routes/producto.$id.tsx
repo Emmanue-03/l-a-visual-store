@@ -59,7 +59,7 @@ function ProductDetail() {
             )}
           </div>
           <div className="mt-3 grid grid-cols-4 gap-2">
-            {gallery.map((g, i) => (
+            {gallery.map((g: string, i: number) => (
               <button key={i} onClick={() => setActive(i)} className={`aspect-square overflow-hidden rounded-xl border-2 transition ${active === i ? "border-brand-royal" : "border-transparent"}`}>
                 <img src={g} alt="" className="h-full w-full object-cover" />
               </button>
@@ -93,7 +93,7 @@ function ProductDetail() {
           <p className="mt-5 text-foreground/80">{product.description}</p>
 
           <ul className="mt-5 grid grid-cols-2 gap-2 text-sm">
-            {product.features.map((f) => (
+            {product.features.map((f: string) => (
               <li key={f} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-royal" /> {f}
               </li>
