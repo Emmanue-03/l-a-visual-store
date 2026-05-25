@@ -132,8 +132,7 @@ export const createCheckoutWhatsAppUrl = (
   items: { product: Product; qty: number }[],
   shipping = 0
 ) => {
-  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.qty, 0);
-  const total = subtotal + shipping;
+  const total = items.reduce((sum, item) => sum + item.product.price * item.qty, 0) + shipping;
   const lines = items.map(
     ({ product, qty }) => `- ${qty} x ${product.name}: ${formatPrice(product.price * qty)}`
   );
@@ -142,8 +141,6 @@ export const createCheckoutWhatsAppUrl = (
     "",
     ...lines,
     "",
-    `Subtotal: ${formatPrice(subtotal)}`,
-    shipping > 0 ? `Envio estimado: ${formatPrice(shipping)}` : null,
     `Total: ${formatPrice(total)}`,
   ].filter(Boolean).join("\n");
 
