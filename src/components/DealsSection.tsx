@@ -3,6 +3,7 @@ import { Flame, ArrowRight } from "lucide-react";
 import { products, formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function Countdown() {
   const [t, setT] = useState({ h: 5, m: 42, s: 18 });
@@ -35,6 +36,12 @@ function Countdown() {
 export function DealsSection() {
   const { add } = useCart();
   const deals = products.filter((p) => p.oldPrice).slice(0, 4);
+  const addDeal = (product: (typeof products)[number]) => {
+    add(product);
+    toast.success("Producto agregado al carrito", {
+      description: `1 x ${product.name}`,
+    });
+  };
 
   return (
     <section className="relative overflow-hidden bg-brand-radial py-16 lg:py-24 text-white">
@@ -75,7 +82,7 @@ export function DealsSection() {
                   <span className="text-xs text-white/60 line-through">{formatPrice(p.oldPrice!)}</span>
                 </div>
                 <button
-                  onClick={() => add(p)}
+                  onClick={() => addDeal(p)}
                   className="mt-3 inline-flex w-full items-center justify-center gap-1 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-brand-deep transition hover:bg-blue-50"
                 >
                   Aprovechar <ArrowRight className="h-3.5 w-3.5" />

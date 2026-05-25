@@ -1,14 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { Star, ShoppingCart, Eye } from "lucide-react";
+import { useState } from "react";
+import { Star, ShoppingCart, Eye, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import type { Product } from "@/lib/mock-data";
 import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
+  const [qty, setQty] = useState(1);
   const discount = product.oldPrice
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
+  const addToCart = () => {
+    add(product, qty);
+    toast.success("Producto agregado al carrito", {
+      description: `${qty} x ${product.name}`,
+    });
+  };
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card card-hover">
@@ -48,9 +57,26 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-muted-foreground line-through">{formatPrice(product.oldPrice)}</span>
           )}
         </div>
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-border bg-white p-1">
+          <button
+            onClick={() => setQty((value) => Math.max(1, value - 1))}
+            aria-label="Restar cantidad"
+            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep hover:bg-brand-soft"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <span className="min-w-8 text-center text-sm font-bold text-brand-deep">{qty}</span>
+          <button
+            onClick={() => setQty((value) => Math.min(product.stock, value + 1))}
+            aria-label="Sumar cantidad"
+            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep hover:bg-brand-soft"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
         <div className="mt-2 flex gap-2">
           <button
-            onClick={() => add(product)}
+            onClick={addToCart}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-royal px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90 btn-glow"
           >
             <ShoppingCart className="h-4 w-4" />

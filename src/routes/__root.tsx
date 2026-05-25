@@ -13,6 +13,7 @@ import { CartProvider } from "@/lib/cart-context";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -95,6 +96,7 @@ function RootComponent() {
           </main>
           <Footer />
           <CartDrawer />
+          <Toaster position="bottom-right" />
         </div>
       </CartProvider>
     </QueryClientProvider>

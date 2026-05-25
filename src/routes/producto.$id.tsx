@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Star, ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 import { products, formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { ProductCard } from "@/components/ProductCard";
@@ -36,6 +37,12 @@ function ProductDetail() {
   const [active, setActive] = useState(0);
   const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
   const discount = product.oldPrice ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) : 0;
+  const addToCart = () => {
+    add(product, qty);
+    toast.success("Producto agregado al carrito", {
+      description: `${qty} x ${product.name}`,
+    });
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-8 py-8">
@@ -106,7 +113,7 @@ function ProductDetail() {
               <span className="w-10 text-center font-semibold">{qty}</span>
               <button onClick={() => setQty(qty + 1)} className="grid h-10 w-10 place-items-center text-brand-deep hover:bg-brand-soft rounded-r-full"><Plus className="h-4 w-4" /></button>
             </div>
-            <button onClick={() => add(product, qty)} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-royal px-5 py-3 font-semibold text-white btn-glow hover:opacity-90">
+            <button onClick={addToCart} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-royal px-5 py-3 font-semibold text-white btn-glow hover:opacity-90">
               <ShoppingCart className="h-4 w-4" /> Agregar al carrito
             </button>
           </div>
