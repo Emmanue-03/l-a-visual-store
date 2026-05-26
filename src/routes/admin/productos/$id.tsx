@@ -38,9 +38,17 @@ function EditProduct() {
         submitting={saving}
         onSubmit={async (payload) => {
           setSaving(true);
-          await saveAdminProduct({ data: payload }).finally(() => setSaving(false));
-          toast.success("Producto actualizado");
-          router.invalidate();
+          try {
+            await saveAdminProduct({ data: payload });
+            toast.success("Producto actualizado");
+            router.invalidate();
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : "No se pudo actualizar el producto.";
+            toast.error(message);
+          } finally {
+            setSaving(false);
+          }
         }}
       />
     </AdminLayout>

@@ -33,9 +33,17 @@ function NewProduct() {
         submitting={saving}
         onSubmit={async (payload) => {
           setSaving(true);
-          const product = await saveAdminProduct({ data: payload }).finally(() => setSaving(false));
-          toast.success("Producto creado");
-          navigate({ to: "/admin/productos/$id", params: { id: product?.id ?? "" } });
+          try {
+            const product = await saveAdminProduct({ data: payload });
+            toast.success("Producto creado");
+            navigate({ to: "/admin/productos/$id", params: { id: product?.id ?? "" } });
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : "No se pudo guardar el producto.";
+            toast.error(message);
+          } finally {
+            setSaving(false);
+          }
         }}
       />
     </AdminLayout>

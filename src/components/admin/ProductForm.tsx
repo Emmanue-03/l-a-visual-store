@@ -1,5 +1,6 @@
 import { FormEvent } from "react";
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { toast } from "sonner";
 import type { AdminCategoryRow } from "@/backend/admin-categories";
 import type { DbProduct } from "@/lib/catalog-mappers";
 
@@ -10,6 +11,48 @@ const slugify = (value: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+
+const isValidUrl = (value: string) => {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+type ValidationError = { field: string; label: string; message: string };
+
+function validatePayload(payload: ProductPayload): ValidationError | null {
+  if (!payload.name || payload.name.trim().length < 2) {
+    return { field: "name", label: "Nombre", message: "El nombre debe tener al menos 2 caracteres." };
+  }
+  if (!payload.description || payload.description.trim().length < 1) {
+    return { field: "description", label: "Descripcion", message: "La descripcion es obligatoria." };
+  }
+  if (!Number.isFinite(payload.price) || payload.price <= 0) {
+    return { field: "price", label: "Precio", message: "El precio debe ser mayor a 0." };
+  }
+  if (payload.old_price != null && payload.old_price <= payload.price) {
+    return {
+      field: "old_price",
+      label: "Precio anterior",
+      message: "El precio anterior debe ser mayor al precio actual.",
+    };
+  }
+  if (!Number.isFinite(payload.stock) || payload.stock < 0) {
+    return { field: "stock", label: "Stock", message: "El stock no puede ser negativo." };
+  }
+  if (!payload.image_url || !isValidUrl(payload.image_url)) {
+    return {
+      field: "image_url",
+      label: "Imagen principal URL",
+      message: "Ingresa una URL valida para la imagen principal (por ejemplo https://...).",
+    };
+  }
+  return null;
+}
 
 type ProductPayload = {
   id?: string;
@@ -49,17 +92,22 @@ type ProductFormProps = {
 export function ProductForm({ product, categories, onSubmit, submitting }: ProductFormProps) {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") ?? "");
+    const formEl = event.currentTarget;
+    const form = new FormData(formEl);
+    const name = String(form.get("name") ?? "").trim();
     const slug = String(form.get("slug") || slugify(name));
-    const lines = (key: string) => String(form.get(key) ?? "").split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+    const lines = (key: string) =>
+      String(form.get(key) ?? "")
+        .split(/\r?\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean);
 
-    await onSubmit({
+    const payload: ProductPayload = {
       id: product?.id,
       sku: String(form.get("sku") || "") || null,
       slug,
       name,
-      description: String(form.get("description") ?? ""),
+      description: String(form.get("description") ?? "").trim(),
       short_description: String(form.get("short_description") || "") || null,
       category_id: String(form.get("category_id") || "") || null,
       price: Number(form.get("price") || 0),
@@ -70,7 +118,7 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       badge: (String(form.get("badge") || "") || null) as ProductPayload["badge"],
       stock: Number(form.get("stock") || 0),
       low_stock_threshold: Number(form.get("low_stock_threshold") || 5),
-      image_url: String(form.get("image_url") ?? ""),
+      image_url: String(form.get("image_url") ?? "").trim(),
       gallery_urls: lines("gallery_urls"),
       features: lines("features"),
       is_active: form.get("is_active") === "on",
@@ -80,7 +128,20 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       sort_order: Number(form.get("sort_order") || 0),
       seo_title: String(form.get("seo_title") || "") || null,
       seo_description: String(form.get("seo_description") || "") || null,
-    });
+    };
+
+    const error = validatePayload(payload);
+    if (error) {
+      toast.error(`${error.label}: ${error.message}`);
+      const target = formEl.elements.namedItem(error.field);
+      if (target instanceof HTMLElement) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        (target as HTMLInputElement | HTMLTextAreaElement).focus();
+      }
+      return;
+    }
+
+    await onSubmit(payload);
   };
 
   return (
