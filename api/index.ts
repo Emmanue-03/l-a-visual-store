@@ -15,7 +15,7 @@
 import server from "../dist/server/server.js";
 
 export const config = {
-  runtime: "nodejs20.x",
+  runtime: "nodejs",
 };
 
 type WorkerLikeServer = {
