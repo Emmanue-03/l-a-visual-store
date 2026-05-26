@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Search, SlidersHorizontal } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { getCatalog } from "@/backend/catalog";
@@ -36,15 +36,38 @@ function CatalogPage() {
   const catalog = Route.useLoaderData();
   const { products, categories } = catalog;
   const usingMock = catalog.source === "mock";
+
+  // Rango de precios derivado de los productos reales, redondeado al
+  // siguiente multiplo de 50k para que el slider tenga pasos limpios.
+  const priceBounds = useMemo(() => {
+    if (!products.length) return { min: 0, max: 2_000_000 };
+    const prices = products.map((p) => p.price);
+    const max = Math.max(...prices);
+    const min = Math.min(...prices);
+    const ceil = (value: number) => Math.ceil(value / 50_000) * 50_000;
+    return { min: Math.max(0, ceil(min) - 50_000), max: ceil(max) };
+  }, [products]);
+
   const [q, setQ] = useState(search.q ?? "");
   const [cat, setCat] = useState<string>(() => categoryFromSearch(search));
   const [sort, setSort] = useState<Sort>("destacados");
-  const [maxPrice, setMaxPrice] = useState<number>(2000000);
+  const [maxPrice, setMaxPrice] = useState<number>(priceBounds.max);
 
   useEffect(() => {
     setCat(categoryFromSearch(search));
     setQ(search.q ?? "");
   }, [search.categoria, search.tag, search.q]);
+
+  // Si entran productos nuevos con precios mayores al tope anterior,
+  // expandimos el slider para no excluirlos por defecto. Solo subimos
+  // el tope; si el usuario lo bajo manualmente seguimos respetandolo.
+  const previousMaxRef = useRef(priceBounds.max);
+  useEffect(() => {
+    if (priceBounds.max > previousMaxRef.current) {
+      setMaxPrice(priceBounds.max);
+    }
+    previousMaxRef.current = priceBounds.max;
+  }, [priceBounds.max]);
 
   // Indice slug → categoria (con id) para poder filtrar por UUID, que es
   // a prueba de mayusculas, espacios o slugs reescritos.
@@ -171,8 +194,29 @@ function CatalogPage() {
             </div>
             <div className="mt-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Precio máximo</p>
-              <input type="range" min={100000} max={2000000} step={50000} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full accent-brand-royal" />
-              <div className="mt-1 text-xs text-brand-deep font-semibold">Hasta Gs. {maxPrice.toLocaleString("es-PY")}</div>
+              <input
+                type="range"
+                min={priceBounds.min}
+                max={priceBounds.max}
+                step={50000}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-full accent-brand-royal"
+              />
+              <div className="mt-1 flex items-center justify-between text-xs">
+                <span className="text-brand-deep font-semibold">
+                  Hasta Gs. {maxPrice.toLocaleString("es-PY")}
+                </span>
+                {maxPrice < priceBounds.max && (
+                  <button
+                    type="button"
+                    onClick={() => setMaxPrice(priceBounds.max)}
+                    className="text-brand-royal hover:underline"
+                  >
+                    Limpiar
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </aside>
