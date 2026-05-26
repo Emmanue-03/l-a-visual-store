@@ -7,11 +7,18 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Deploy target: Vercel. Desactivamos el plugin de Cloudflare que el lovable
-// config incluye por default; sin el, el build de SSR queda como modulo ESM
-// generico que cargamos desde api/index.ts (Vercel Edge Function).
+// config incluye por default y forzamos noExternal en SSR para que TODAS las
+// dependencias queden inlineadas en dist/server/. Sin esto, el build externaliza
+// @tanstack/react-router, react, h3-v2, seroval, etc., y la funcion serverless
+// (que no tiene node_modules) crashea con FUNCTION_INVOCATION_FAILED al arrancar.
 export default defineConfig({
   cloudflare: false,
   tanstackStart: {
     server: { entry: "server" },
+  },
+  vite: {
+    ssr: {
+      noExternal: true,
+    },
   },
 });
