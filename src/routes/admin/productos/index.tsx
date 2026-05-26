@@ -144,8 +144,16 @@ function AdminProducts() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 capitalize">
-                    {product.category_name ?? product.category_slug ?? "—"}
+                  <td className="px-4 py-3">
+                    {product.category_id ? (
+                      <span className="capitalize">
+                        {product.category_name ?? product.category_slug}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                        Sin categoria
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 font-semibold text-brand-royal">
                     {formatPrice(product.price)}

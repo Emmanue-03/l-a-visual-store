@@ -92,6 +92,7 @@ type ProductFormProps = {
 
 export function ProductForm({ product, categories, onSubmit, submitting }: ProductFormProps) {
   const [galleryUrls, setGalleryUrls] = useState<string[]>(() => product?.gallery_urls ?? []);
+  const [categoryId, setCategoryId] = useState<string>(() => product?.category_id ?? "");
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -160,14 +161,28 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
           <Field label="Nombre" name="name" defaultValue={product?.name} required />
           <Field label="Slug" name="slug" defaultValue={product?.slug} placeholder="se genera si queda vacio" />
           <Field label="SKU" name="sku" defaultValue={product?.sku ?? ""} />
-          <label className="text-sm font-semibold text-slate-700">
+          <label className="text-sm font-semibold text-slate-700 sm:col-span-2">
             Categoria
-            <select name="category_id" defaultValue={product?.category_id ?? ""} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-              <option value="">Sin categoria</option>
+            <select
+              name="category_id"
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+              className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${
+                categoryId ? "border-slate-200" : "border-amber-300 bg-amber-50"
+              }`}
+            >
+              <option value="">— Sin categoria —</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.name}</option>
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
               ))}
             </select>
+            {!categoryId && (
+              <p className="mt-1 text-xs font-normal text-amber-800">
+                ⚠ Sin categoria seleccionada. El producto aparecera solo en «Todas» del catalogo, no al filtrar por una categoria especifica.
+              </p>
+            )}
           </label>
           <Field label="Precio" name="price" type="number" defaultValue={product?.price} required />
           <Field label="Precio anterior" name="old_price" type="number" defaultValue={product?.old_price ?? ""} />
