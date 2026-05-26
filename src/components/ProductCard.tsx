@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { type CSSProperties, useState } from "react";
-import { Star, ShoppingCart, Eye, Minus, Plus } from "lucide-react";
+import { ShoppingCart, Eye, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/catalog-types";
 import { formatPrice } from "@/lib/mock-data";
@@ -88,12 +88,6 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <div className="flex items-center gap-1 text-amber-500">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`h-3.5 w-3.5 ${i < Math.round(product.rating) ? "fill-current" : "opacity-30"}`} />
-          ))}
-          <span className="ml-1 text-xs text-muted-foreground">({product.reviews})</span>
-        </div>
         <Link to="/producto/$id" params={{ id: productRouteId(product) }} className="line-clamp-2 font-display font-semibold text-foreground hover:text-brand-royal transition-colors">
           {product.name}
         </Link>

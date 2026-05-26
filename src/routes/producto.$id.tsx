@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
+import { ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
@@ -94,12 +94,6 @@ function ProductDetail() {
             <span className="text-emerald-600 font-semibold">● Stock disponible ({product.stock})</span>
           </div>
           <h1 className="mt-3 font-display text-3xl font-bold text-brand-deep sm:text-4xl">{product.name}</h1>
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center gap-0.5 text-amber-500">
-              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className={`h-4 w-4 ${i < Math.round(product.rating) ? "fill-current" : "opacity-30"}`} />)}
-            </div>
-            <span className="text-sm text-muted-foreground">{product.rating} · {product.reviews} reseñas</span>
-          </div>
 
           <div className="mt-5 flex items-baseline gap-3">
             <span className="font-display text-4xl font-bold text-brand-royal">{formatPrice(product.price)}</span>
