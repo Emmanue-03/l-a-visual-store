@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { clearSession, getRequestHeader, updateSession, useSession } from "@tanstack/react-start/server";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
@@ -25,6 +25,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+// Module-local helpers (no exports = bundler can tree-shake from client chunks).
 function sessionConfig() {
   const password = getServerEnv("ADMIN_SESSION_SECRET");
   if (!password) return null;
@@ -52,40 +53,51 @@ function publicAdmin(row: AdminUserRow): AdminUser {
   };
 }
 
-export async function getAdminSessionUser() {
+// Server-only helpers. createServerOnlyFn is a compile-time marker for the
+// TanStack Start plugin: the function is replaced with a client-side stub
+// that throws if invoked from the browser, so the implementation body and
+// its server-only imports (useSession etc.) never reach the client bundle.
+export const getAdminSessionUser = createServerOnlyFn(async (): Promise<AdminUser | null> => {
   const config = sessionConfig();
   if (!config) return null;
 
-  // TanStack Start exposes this server utility as useSession; it is not a React Hook.
+  // useSession is a TanStack Start server utility, not a React Hook.
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const session = await useSession<AdminSessionData>(config);
   const adminUserId = session.data.adminUserId;
   if (!adminUserId) return null;
 
-  const [admin] = await restSelect<AdminUserRow>("admin_users", {
+  const admins = await restSelect<AdminUserRow>("admin_users", {
     select: "id,email,password_hash,full_name,role,is_active",
     id: `eq.${adminUserId}`,
     limit: 1,
-  }).catch(() => []);
+  }).catch(() => [] as AdminUserRow[]);
 
-  if (!admin?.is_active) return null;
+  const admin = admins[0];
+  if (!admin || !admin.is_active) return null;
   return publicAdmin(admin);
-}
+});
 
-export async function requireAdminUser() {
+export const requireAdminUser = createServerOnlyFn(async (): Promise<AdminUser> => {
   const admin = await getAdminSessionUser();
   if (!admin) throw new Error("No autorizado");
   return admin;
-}
+});
 
-export const getCurrentAdmin = createServerFn({ method: "GET" }).handler(getAdminSessionUser);
+// Public server fns — handlers inlined so the plugin can split cleanly.
+export const getCurrentAdmin = createServerFn({ method: "GET" }).handler(async () => {
+  return getAdminSessionUser();
+});
 
 export const loginAdmin = createServerFn({ method: "POST" })
   .inputValidator((value: unknown) => loginSchema.parse(value))
   .handler(async ({ data }) => {
     const config = sessionConfig();
     if (!config) {
-      return { ok: false as const, message: "Falta configurar ADMIN_SESSION_SECRET en el servidor" };
+      return {
+        ok: false as const,
+        message: "Falta configurar ADMIN_SESSION_SECRET en el servidor",
+      };
     }
 
     const email = data.email.trim().toLowerCase();
@@ -106,16 +118,23 @@ export const loginAdmin = createServerFn({ method: "POST" })
     }
 
     const admin = admins[0];
-    if (!admin) return { ok: false as const, message: "Usuario no encontrado. Ejecuta npm run admin:bootstrap." };
+    if (!admin) {
+      return {
+        ok: false as const,
+        message: "Usuario no encontrado. Ejecuta npm run admin:bootstrap.",
+      };
+    }
     if (!admin.is_active) return { ok: false as const, message: "Usuario inactivo" };
 
     const valid = await verifyPassword(data.password, admin.password_hash);
     if (!valid) return { ok: false as const, message: "Contrasena incorrecta" };
 
     await updateSession(config, { adminUserId: admin.id });
-    await restUpdate("admin_users", { last_login_at: new Date().toISOString() }, { id: `eq.${admin.id}` }).catch(
-      () => null,
-    );
+    await restUpdate(
+      "admin_users",
+      { last_login_at: new Date().toISOString() },
+      { id: `eq.${admin.id}` },
+    ).catch(() => null);
     await restInsert("audit_log", {
       admin_user_id: admin.id,
       action: "login",
@@ -125,8 +144,8 @@ export const loginAdmin = createServerFn({ method: "POST" })
       user_agent: getRequestHeader("user-agent") ?? null,
     }).catch(() => null);
 
-    // Redirect from the server fn so the Set-Cookie and the navigation arrive
-    // in the same response — eliminates the race where the client navigates
+    // Redirect from the server fn so Set-Cookie and the navigation arrive in
+    // the same response — eliminates the race where the client navigates
     // before the browser persists the session cookie.
     throw redirect({ to: "/admin" });
   });

@@ -35,11 +35,15 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const detail = error?.message || String(error);
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-xl text-center">
         <h1 className="text-xl font-semibold">Esta página no cargó</h1>
         <p className="mt-2 text-sm text-muted-foreground">Algo salió mal. Probá refrescar o volvé al inicio.</p>
+        <pre className="mt-5 max-h-64 overflow-auto rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-left text-xs text-destructive whitespace-pre-wrap break-words">
+          {detail}
+        </pre>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button onClick={() => { router.invalidate(); reset(); }} className="rounded-full bg-brand-royal px-4 py-2 text-sm font-medium text-white">Reintentar</button>
           <a href="/" className="rounded-full border border-input bg-background px-4 py-2 text-sm font-medium">Ir al inicio</a>
