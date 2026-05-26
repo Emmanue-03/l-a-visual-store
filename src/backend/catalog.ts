@@ -8,6 +8,10 @@ type CatalogPayload = {
   products: Product[];
   categories: Category[];
   settings: SiteSettings;
+  /** "db" si los datos vienen de Supabase, "mock" si cayo al fallback. */
+  source: "db" | "mock";
+  /** Mensaje de error que provoco el fallback, si lo hubo. */
+  fallbackReason?: string;
 };
 
 const fallbackSettings: SiteSettings = {
@@ -58,13 +62,20 @@ export async function getCatalogData(): Promise<CatalogPayload> {
         mapDbCategory(category, counts[norm(category.slug)] ?? 0),
       ),
       settings: mapSettings(settingsRows),
+      source: "db",
     };
   } catch (error) {
-    console.warn("Using mock catalog fallback:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(
+      "[catalog] Cayendo al fallback de mock data — la lectura de Supabase fallo:",
+      message,
+    );
     return {
       products: mockProducts,
       categories: mockCategories,
       settings: fallbackSettings,
+      source: "mock",
+      fallbackReason: message,
     };
   }
 }

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { AlertTriangle, Search, SlidersHorizontal } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { getCatalog } from "@/backend/catalog";
 
@@ -33,7 +33,9 @@ const categoryFromSearch = (search: { categoria?: string; tag?: string }) => {
 
 function CatalogPage() {
   const search = Route.useSearch();
-  const { products, categories } = Route.useLoaderData();
+  const catalog = Route.useLoaderData();
+  const { products, categories } = catalog;
+  const usingMock = catalog.source === "mock";
   const [q, setQ] = useState(search.q ?? "");
   const [cat, setCat] = useState<string>(() => categoryFromSearch(search));
   const [sort, setSort] = useState<Sort>("destacados");
@@ -114,6 +116,29 @@ function CatalogPage() {
           </div>
         </div>
       </div>
+
+      {usingMock && (
+        <div className="mx-auto max-w-7xl px-4 lg:px-8 mt-6">
+          <div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-bold">Catalogo en modo demo (mock data).</p>
+              <p className="mt-1 text-xs leading-relaxed">
+                No se pudo leer desde Supabase, por eso veras los 12 productos hardcoded y no
+                los del panel admin. Revisa SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY (o ANON_KEY)
+                en el entorno del server y que el schema <code>lamultiventas</code> este
+                publicado en PostgREST.
+                {catalog.fallbackReason ? (
+                  <>
+                    {" "}
+                    Detalle del error: <code>{catalog.fallbackReason}</code>.
+                  </>
+                ) : null}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10 grid gap-8 lg:grid-cols-[260px_1fr]">
         {/* Sidebar filters */}
