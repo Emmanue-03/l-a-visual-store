@@ -41,14 +41,22 @@ export async function getCatalogData(): Promise<CatalogPayload> {
     ]);
 
     const products = productsRows.map(mapDbProduct);
+    // Normalizamos por slug en lowercase + trim para que la categoria del
+    // producto matchee la del listado aunque alguna haya quedado con caso
+    // mezclado en DB (ej. cargas manuales SQL).
+    const norm = (value?: string | null) => (value ?? "").trim().toLowerCase();
     const counts = products.reduce<Record<string, number>>((acc, product) => {
-      acc[product.category] = (acc[product.category] ?? 0) + 1;
+      const key = norm(product.category);
+      if (!key) return acc;
+      acc[key] = (acc[key] ?? 0) + 1;
       return acc;
     }, {});
 
     return {
       products,
-      categories: categoryRows.map((category) => mapDbCategory(category, counts[category.slug] ?? 0)),
+      categories: categoryRows.map((category) =>
+        mapDbCategory(category, counts[norm(category.slug)] ?? 0),
+      ),
       settings: mapSettings(settingsRows),
     };
   } catch (error) {

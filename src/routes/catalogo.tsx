@@ -22,8 +22,10 @@ export const Route = createFileRoute("/catalogo")({
 
 type Sort = "destacados" | "menor" | "mayor" | "nuevos" | "ofertas";
 
+const normSlug = (value?: string | null) => (value ?? "").trim().toLowerCase();
+
 const categoryFromSearch = (search: { categoria?: string; tag?: string }) => {
-  if (search.categoria) return search.categoria;
+  if (search.categoria) return normSlug(search.categoria);
   if (search.tag === "ofertas") return "ofertas";
   if (search.tag === "nuevos") return "nuevos";
   return "todas";
@@ -43,10 +45,12 @@ function CatalogPage() {
   }, [search.categoria, search.tag, search.q]);
 
   const filtered = useMemo(() => {
+    const catKey = normSlug(cat);
     let list = products.filter((p) => p.price <= maxPrice);
-    if (cat === "ofertas") list = list.filter((p) => p.oldPrice);
-    else if (cat === "nuevos") list = list.filter((p) => p.badge === "Nuevo");
-    else if (cat !== "todas") list = list.filter((p) => p.category === cat);
+    if (catKey === "ofertas") list = list.filter((p) => p.oldPrice);
+    else if (catKey === "nuevos") list = list.filter((p) => p.badge === "Nuevo");
+    else if (catKey !== "todas")
+      list = list.filter((p) => normSlug(p.category) === catKey);
     if (q) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
     switch (sort) {
       case "menor": list = [...list].sort((a, b) => a.price - b.price); break;
@@ -88,11 +92,18 @@ function CatalogPage() {
                 <button onClick={() => setCat("todas")} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${cat === "todas" ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}>
                   Todas
                 </button>
-                {categories.map((c) => (
-                  <button key={c.slug} onClick={() => setCat(c.slug)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${cat === c.slug ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}>
-                    {c.name}
-                  </button>
-                ))}
+                {categories.map((c) => {
+                  const slug = normSlug(c.slug);
+                  return (
+                    <button
+                      key={slug}
+                      onClick={() => setCat(slug)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${normSlug(cat) === slug ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}
+                    >
+                      {c.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <div className="mt-5">

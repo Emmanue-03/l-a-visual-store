@@ -21,8 +21,10 @@ export const Route = createFileRoute("/producto/$id")({
     const catalog = await getCatalog();
     const p = catalog.products.find((x) => x.slug === params.id || x.id === params.id || slugify(x.name) === params.id);
     if (!p) throw notFound();
+    const norm = (value?: string | null) => (value ?? "").trim().toLowerCase();
+    const baseKey = norm(p.category);
     const related = catalog.products
-      .filter((product) => product.category === p.category && product.id !== p.id)
+      .filter((product) => norm(product.category) === baseKey && product.id !== p.id)
       .slice(0, 4);
     return { product: p, related };
   },
