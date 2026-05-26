@@ -71,6 +71,7 @@ export function mapDbProduct(product: DbProduct): Product {
     rating: Number(product.rating ?? 0),
     reviews: product.reviews_count ?? 0,
     category: product.category_slug ?? "",
+    categoryId: product.category_id ?? null,
     categoryName: product.category_name,
     image: product.image_url,
     gallery: product.gallery_urls ?? [],

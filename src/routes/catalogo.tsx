@@ -44,13 +44,50 @@ function CatalogPage() {
     setQ(search.q ?? "");
   }, [search.categoria, search.tag, search.q]);
 
+  // Indice slug → categoria (con id) para poder filtrar por UUID, que es
+  // a prueba de mayusculas, espacios o slugs reescritos.
+  const categoryBySlug = useMemo(() => {
+    const map = new Map<string, { id?: string; slug: string }>();
+    categories.forEach((c) => {
+      map.set(normSlug(c.slug), { id: c.id, slug: c.slug });
+    });
+    return map;
+  }, [categories]);
+
+  // Conteo real de productos por categoria, usando id como clave primaria
+  // y cayendo al slug normalizado. Se muestra en cada chip.
+  const countsBySlug = useMemo(() => {
+    const counts = new Map<string, number>();
+    products.forEach((p) => {
+      const slugKey = normSlug(p.category);
+      let key = slugKey;
+      if (p.categoryId) {
+        for (const [s, c] of categoryBySlug) {
+          if (c.id === p.categoryId) {
+            key = s;
+            break;
+          }
+        }
+      }
+      if (!key) return;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return counts;
+  }, [products, categoryBySlug]);
+
   const filtered = useMemo(() => {
     const catKey = normSlug(cat);
     let list = products.filter((p) => p.price <= maxPrice);
     if (catKey === "ofertas") list = list.filter((p) => p.oldPrice);
     else if (catKey === "nuevos") list = list.filter((p) => p.badge === "Nuevo");
-    else if (catKey !== "todas")
-      list = list.filter((p) => normSlug(p.category) === catKey);
+    else if (catKey !== "todas") {
+      const target = categoryBySlug.get(catKey);
+      const targetId = target?.id;
+      list = list.filter((p) => {
+        if (targetId && p.categoryId) return p.categoryId === targetId;
+        return normSlug(p.category) === catKey;
+      });
+    }
     if (q) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
     switch (sort) {
       case "menor": list = [...list].sort((a, b) => a.price - b.price); break;
@@ -59,7 +96,7 @@ function CatalogPage() {
       case "ofertas": list = list.filter((p) => p.oldPrice).concat(list.filter((p) => !p.oldPrice)); break;
     }
     return list;
-  }, [q, cat, sort, maxPrice]);
+  }, [q, cat, sort, maxPrice, products, categoryBySlug]);
 
   return (
     <div>
@@ -90,17 +127,18 @@ function CatalogPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Categoría</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => setCat("todas")} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${cat === "todas" ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}>
-                  Todas
+                  Todas ({products.length})
                 </button>
                 {categories.map((c) => {
                   const slug = normSlug(c.slug);
+                  const count = countsBySlug.get(slug) ?? 0;
                   return (
                     <button
                       key={slug}
                       onClick={() => setCat(slug)}
                       className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${normSlug(cat) === slug ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}
                     >
-                      {c.name}
+                      {c.name} ({count})
                     </button>
                   );
                 })}
