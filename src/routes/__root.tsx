@@ -64,10 +64,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "L&A Multiventas | Tu multitienda online" },
       { property: "og:description", content: "Tecnología, hogar, accesorios y mucho más. Atención por WhatsApp." },
       { property: "og:type", content: "website" },
+      {
+        property: "og:image",
+        content:
+          "https://res.cloudinary.com/dqhnjdrl8/image/upload/v1779795525/WhatsApp_Image_2026-05-25_at_17.03.30_1_th8cc3.jpg",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      // Favicon (icono de pestaña). Servido desde Cloudinary igual que el logo.
+      {
+        rel: "icon",
+        type: "image/jpeg",
+        href: "https://res.cloudinary.com/dqhnjdrl8/image/upload/c_thumb,w_64,h_64,g_auto/v1779795525/WhatsApp_Image_2026-05-25_at_17.03.30_1_th8cc3.jpg",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "https://res.cloudinary.com/dqhnjdrl8/image/upload/c_thumb,w_180,h_180,g_auto/v1779795525/WhatsApp_Image_2026-05-25_at_17.03.30_1_th8cc3.jpg",
+      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" },
