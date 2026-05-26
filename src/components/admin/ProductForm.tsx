@@ -117,8 +117,10 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       price: Number(form.get("price") || 0),
       old_price: form.get("old_price") ? Number(form.get("old_price")) : null,
       cost_price: form.get("cost_price") ? Number(form.get("cost_price")) : null,
-      rating: Number(form.get("rating") || 0),
-      reviews_count: Number(form.get("reviews_count") || 0),
+      // Rating y reviews_count se sacaron del form para simplificar la UX.
+      // Al editar preservamos el valor existente; al crear quedan en 0.
+      rating: Number(product?.rating ?? 0),
+      reviews_count: Number(product?.reviews_count ?? 0),
       badge: (String(form.get("badge") || "") || null) as ProductPayload["badge"],
       stock: Number(form.get("stock") || 0),
       low_stock_threshold: Number(form.get("low_stock_threshold") || 5),
@@ -189,8 +191,6 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
           <Field label="Costo" name="cost_price" type="number" defaultValue={product?.cost_price ?? ""} />
           <Field label="Stock" name="stock" type="number" defaultValue={product?.stock ?? 0} />
           <Field label="Stock minimo" name="low_stock_threshold" type="number" defaultValue={product?.low_stock_threshold ?? 5} />
-          <Field label="Rating" name="rating" type="number" step="0.1" defaultValue={product?.rating ?? 0} />
-          <Field label="Resenas" name="reviews_count" type="number" defaultValue={product?.reviews_count ?? 0} />
           <label className="text-sm font-semibold text-slate-700">
             Badge
             <select name="badge" defaultValue={product?.badge ?? ""} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
