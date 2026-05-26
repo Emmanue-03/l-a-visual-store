@@ -1,15 +1,16 @@
 import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Boxes, FolderTree, LogOut, Settings, ShoppingBag } from "lucide-react";
+import { BarChart3, Boxes, FolderTree, LogOut, ShoppingBag } from "lucide-react";
 import type { ReactNode } from "react";
 import type { AdminUser } from "@/lib/catalog-types";
 import { logoutAdmin } from "@/backend/admin-auth";
 
+// Configuracion intencionalmente oculto del nav. La ruta sigue disponible
+// en /admin/configuracion si se accede por URL directa.
 const links = [
   { to: "/admin", label: "Dashboard", icon: BarChart3 },
   { to: "/admin/productos", label: "Productos", icon: Boxes },
   { to: "/admin/categorias", label: "Categorias", icon: FolderTree },
   { to: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
-  { to: "/admin/configuracion", label: "Configuracion", icon: Settings },
 ] as const;
 
 export function AdminLayout({ admin, children }: { admin: AdminUser; children: ReactNode }) {

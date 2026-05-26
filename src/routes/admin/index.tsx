@@ -75,7 +75,6 @@ function AdminDashboard() {
             <Link to="/admin/productos" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Gestionar productos</Link>
             <Link to="/admin/categorias" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Gestionar categorias</Link>
             <Link to="/admin/pedidos" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Ver pedidos</Link>
-            <Link to="/admin/configuracion" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Configuracion</Link>
             <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">
               <ShoppingBag className="h-4 w-4" />
               Ver catalogo publico
