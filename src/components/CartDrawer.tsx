@@ -2,9 +2,13 @@ import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
 
-export function CartDrawer() {
+type CartDrawerProps = {
+  whatsappPhone?: string;
+};
+
+export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
   const { isOpen, close, items, total, setQty, remove } = useCart();
-  const checkoutUrl = createCheckoutWhatsAppUrl(items);
+  const checkoutUrl = createCheckoutWhatsAppUrl(items, 0, whatsappPhone);
 
   return (
     <>

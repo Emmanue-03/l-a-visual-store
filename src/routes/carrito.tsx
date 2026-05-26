@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { ArrowLeft, ShieldCheck, Truck, MessageCircle, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
@@ -7,6 +7,12 @@ export const Route = createFileRoute("/carrito")({
   component: CartPage,
   head: () => ({ meta: [{ title: "Tu carrito | L&A Multiventas" }] }),
 });
+
+function useRootSettings() {
+  // Read settings from the root loader so we don't refetch the catalog here.
+  const root = useLoaderData({ from: "__root__" });
+  return root.settings;
+}
 
 const productRouteId = (product: { slug?: string; name: string; id: string }) =>
   product.slug ??
@@ -19,8 +25,9 @@ const productRouteId = (product: { slug?: string; name: string; id: string }) =>
 
 function CartPage() {
   const { items, total, setQty, remove } = useCart();
-  const shipping = items.length ? 25000 : 0;
-  const checkoutUrl = createCheckoutWhatsAppUrl(items, shipping);
+  const settings = useRootSettings();
+  const shipping = items.length ? settings.defaultShippingCost || 25000 : 0;
+  const checkoutUrl = createCheckoutWhatsAppUrl(items, shipping, settings.whatsappPhone);
 
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">

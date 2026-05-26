@@ -115,7 +115,7 @@ function RootComponent() {
             <Outlet />
           </main>
           <Footer />
-          <CartDrawer />
+          <CartDrawer whatsappPhone={catalog.settings.whatsappPhone} />
           <Toaster position="bottom-right" />
         </div>
       </CartProvider>

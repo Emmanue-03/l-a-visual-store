@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { clearSession, getRequestHeader, updateSession, useSession } from "@tanstack/react-start/server";
+import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import type { AdminUser } from "@/lib/catalog-types";
 import { getServerEnv } from "./env";
@@ -84,20 +85,32 @@ export const loginAdmin = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const config = sessionConfig();
     if (!config) {
-      return { ok: false, message: "Falta configurar ADMIN_SESSION_SECRET en el servidor" };
+      return { ok: false as const, message: "Falta configurar ADMIN_SESSION_SECRET en el servidor" };
     }
 
     const email = data.email.trim().toLowerCase();
-    const [admin] = await restSelect<AdminUserRow>("admin_users", {
-      select: "id,email,password_hash,full_name,role,is_active",
-      email: `eq.${email}`,
-      limit: 1,
-    }).catch(() => []);
+    let admins: AdminUserRow[] = [];
+    try {
+      admins = await restSelect<AdminUserRow>("admin_users", {
+        select: "id,email,password_hash,full_name,role,is_active",
+        email: `eq.${email}`,
+        limit: 1,
+      });
+    } catch (error) {
+      console.error("loginAdmin: admin_users lookup failed", error);
+      return {
+        ok: false as const,
+        message:
+          "No se pudo consultar admin_users. Verifica SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY y que el schema lamultiventas exista.",
+      };
+    }
 
-    if (!admin || !admin.is_active) return { ok: false, message: "Credenciales invalidas" };
+    const admin = admins[0];
+    if (!admin) return { ok: false as const, message: "Usuario no encontrado. Ejecuta npm run admin:bootstrap." };
+    if (!admin.is_active) return { ok: false as const, message: "Usuario inactivo" };
 
     const valid = await verifyPassword(data.password, admin.password_hash);
-    if (!valid) return { ok: false, message: "Credenciales invalidas" };
+    if (!valid) return { ok: false as const, message: "Contrasena incorrecta" };
 
     await updateSession(config, { adminUserId: admin.id });
     await restUpdate("admin_users", { last_login_at: new Date().toISOString() }, { id: `eq.${admin.id}` }).catch(
@@ -112,7 +125,10 @@ export const loginAdmin = createServerFn({ method: "POST" })
       user_agent: getRequestHeader("user-agent") ?? null,
     }).catch(() => null);
 
-    return { ok: true, admin: publicAdmin(admin) };
+    // Redirect from the server fn so the Set-Cookie and the navigation arrive
+    // in the same response — eliminates the race where the client navigates
+    // before the browser persists the session cookie.
+    throw redirect({ to: "/admin" });
   });
 
 export const logoutAdmin = createServerFn({ method: "POST" }).handler(async () => {
