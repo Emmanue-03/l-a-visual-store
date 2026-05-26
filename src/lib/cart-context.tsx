@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import type { Product } from "./mock-data";
+import type { Product } from "./catalog-types";
 
 export type CartItem = { product: Product; qty: number };
 

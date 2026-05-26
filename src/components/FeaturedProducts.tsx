@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { products } from "@/lib/mock-data";
+import type { Product } from "@/lib/catalog-types";
 import { ProductCard } from "./ProductCard";
 
-export function FeaturedProducts() {
-  const items = products.slice(0, 8);
+export function FeaturedProducts({ items = products.slice(0, 8) }: { items?: Product[] }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
       <div className="mb-8 flex items-end justify-between gap-4">

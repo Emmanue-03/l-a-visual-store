@@ -8,6 +8,15 @@ export const Route = createFileRoute("/carrito")({
   head: () => ({ meta: [{ title: "Tu carrito | L&A Multiventas" }] }),
 });
 
+const productRouteId = (product: { slug?: string; name: string; id: string }) =>
+  product.slug ??
+  product.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 function CartPage() {
   const { items, total, setQty, remove } = useCart();
   const shipping = items.length ? 25000 : 0;
@@ -37,7 +46,7 @@ function CartPage() {
                 <img src={product.image} alt={product.name} className="h-24 w-24 rounded-xl object-cover" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <Link to="/producto/$id" params={{ id: product.id }} className="font-display font-bold text-brand-deep hover:text-brand-royal">{product.name}</Link>
+                    <Link to="/producto/$id" params={{ id: productRouteId(product) }} className="font-display font-bold text-brand-deep hover:text-brand-royal">{product.name}</Link>
                     <button onClick={() => remove(product.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                   </div>
                   <p className="text-xs text-muted-foreground capitalize">{product.category}</p>

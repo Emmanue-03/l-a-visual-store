@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Flame, ArrowRight } from "lucide-react";
 import { products, formatPrice } from "@/lib/mock-data";
+import type { Product } from "@/lib/catalog-types";
 import { useCart } from "@/lib/cart-context";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -33,10 +34,10 @@ function Countdown() {
   );
 }
 
-export function DealsSection() {
+export function DealsSection({ items }: { items?: Product[] }) {
   const { add } = useCart();
-  const deals = products.filter((p) => p.oldPrice).slice(0, 4);
-  const addDeal = (product: (typeof products)[number]) => {
+  const deals = items ?? products.filter((p) => p.oldPrice).slice(0, 4);
+  const addDeal = (product: Product) => {
     add(product);
     toast.success("Producto agregado al carrito", {
       description: `1 x ${product.name}`,
@@ -93,7 +94,7 @@ export function DealsSection() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-brand-deep btn-glow hover:bg-blue-50">
+          <Link to="/catalogo" search={{ tag: "ofertas" }} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-brand-deep btn-glow hover:bg-blue-50">
             Ver todas las ofertas <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

@@ -1,9 +1,10 @@
 import { useEffect, useRef, type MouseEvent } from "react";
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { products } from "@/lib/mock-data";
+import type { Product } from "@/lib/catalog-types";
 import { ProductCard } from "./ProductCard";
 
-export function BestSellers() {
+export function BestSellers({ items }: { items?: Product[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
   const directionRef = useRef(0);
@@ -57,7 +58,7 @@ export function BestSellers() {
 
   useEffect(() => stopEdgeScroll, []);
 
-  const items = products.filter((p) => p.badge === "Top venta" || p.rating >= 4.7);
+  const displayItems = items ?? products.filter((p) => p.badge === "Top venta" || p.rating >= 4.7);
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
       <div className="mb-8 flex items-end justify-between gap-4">
@@ -82,7 +83,7 @@ export function BestSellers() {
         onMouseLeave={stopEdgeScroll}
         className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {items.map((p) => (
+        {displayItems.map((p) => (
           <div key={p.id} className="w-[260px] flex-none snap-start">
             <ProductCard product={p} />
           </div>

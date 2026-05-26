@@ -148,6 +148,24 @@
     box-shadow: var(--shadow-elevated);
     border-color: color-mix(in oklab, var(--brand-royal) 35%, transparent);
   }
+  .product-gallery-scene {
+    isolation: isolate;
+  }
+  .product-gallery-image {
+    transform: scale(1.01);
+    transition: filter .35s cubic-bezier(.2,.7,.2,1), transform .35s cubic-bezier(.2,.7,.2,1);
+  }
+  .product-gallery-alt {
+    opacity: 0;
+  }
+  .group:hover .product-gallery-alt {
+    animation: product-gallery-cycle var(--gallery-duration) linear infinite;
+    animation-delay: var(--gallery-delay);
+  }
+  .group:hover .product-gallery-image {
+    filter: saturate(1.05) contrast(1.03);
+    transform: scale(1.06);
+  }
   .btn-glow {
     box-shadow: 0 10px 30px -10px color-mix(in oklab, var(--brand-royal) 70%, transparent);
   }
@@ -173,4 +191,14 @@
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-royal) 45%, transparent); }
   50% { box-shadow: 0 0 0 14px color-mix(in oklab, var(--brand-royal) 0%, transparent); }
+}
+@keyframes product-gallery-cycle {
+  0%, 30% { opacity: 1; }
+  42%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .product-gallery-alt {
+    animation: none;
+  }
 }

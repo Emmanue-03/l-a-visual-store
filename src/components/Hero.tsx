@@ -37,6 +37,7 @@ export function Hero() {
             </Link>
             <Link
               to="/catalogo"
+              search={{ tag: "ofertas" }}
               className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-6 py-3 font-semibold text-white backdrop-blur hover:bg-white/10 transition"
             >
               <Flame className="h-4 w-4 text-orange-300" /> Ver ofertas

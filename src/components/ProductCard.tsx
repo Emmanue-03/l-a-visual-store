@@ -1,17 +1,35 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import { Star, ShoppingCart, Eye, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
-import type { Product } from "@/lib/mock-data";
+import type { Product } from "@/lib/catalog-types";
 import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
+
+const productRouteId = (product: Product) =>
+  product.slug ??
+  product.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
+  const gallery = product.gallery?.length
+    ? product.gallery
+    : [
+        product.image,
+        product.image.replace("fit=crop", "fit=crop&crop=entropy"),
+        product.image.replace("w=800&h=800", "w=900&h=900"),
+      ];
+  const hasGallery = gallery.length > 1;
   const discount = product.oldPrice
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
+
   const addToCart = () => {
     add(product, qty);
     toast.success("Producto agregado al carrito", {
@@ -21,13 +39,41 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card card-hover">
-      <Link to="/producto/$id" params={{ id: product.id }} className="relative block aspect-square overflow-hidden bg-brand-soft">
+      <Link
+        to="/producto/$id"
+        params={{ id: productRouteId(product) }}
+        className="product-gallery-scene relative block aspect-square overflow-hidden bg-brand-soft"
+      >
         <img
-          src={product.image}
+          src={gallery[0]}
           alt={product.name}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="product-gallery-image h-full w-full object-cover"
         />
+        {gallery.slice(1).map((image, index) => (
+          <img
+            key={image}
+            src={image}
+            alt=""
+            loading="lazy"
+            aria-hidden="true"
+            style={{
+              "--gallery-duration": `${gallery.length * 0.85}s`,
+              "--gallery-delay": `${(index + 1) * 0.85}s`,
+            } as CSSProperties}
+            className="product-gallery-image product-gallery-alt absolute inset-0 h-full w-full object-cover"
+          />
+        ))}
+        {hasGallery && (
+          <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 rounded-full bg-white/75 px-2 py-1 shadow-sm backdrop-blur">
+            {gallery.map((image, index) => (
+              <span
+                key={image}
+                className={`h-1.5 rounded-full ${index === 0 ? "w-4 bg-brand-royal" : "w-1.5 bg-brand-muted/40"}`}
+              />
+            ))}
+          </div>
+        )}
         {product.badge && (
           <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md
             ${product.badge === "Oferta" ? "bg-destructive" : product.badge === "Nuevo" ? "bg-brand-royal" : "bg-brand-deep"}`}>
@@ -48,7 +94,7 @@ export function ProductCard({ product }: { product: Product }) {
           ))}
           <span className="ml-1 text-xs text-muted-foreground">({product.reviews})</span>
         </div>
-        <Link to="/producto/$id" params={{ id: product.id }} className="line-clamp-2 font-display font-semibold text-foreground hover:text-brand-royal transition-colors">
+        <Link to="/producto/$id" params={{ id: productRouteId(product) }} className="line-clamp-2 font-display font-semibold text-foreground hover:text-brand-royal transition-colors">
           {product.name}
         </Link>
         <div className="mt-auto flex items-baseline gap-2">
@@ -84,7 +130,7 @@ export function ProductCard({ product }: { product: Product }) {
           </button>
           <Link
             to="/producto/$id"
-            params={{ id: product.id }}
+            params={{ id: productRouteId(product) }}
             aria-label="Ver detalle"
             className="grid place-items-center rounded-xl border border-border px-3 text-brand-deep hover:bg-brand-soft transition"
           >

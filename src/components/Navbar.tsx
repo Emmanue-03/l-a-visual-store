@@ -1,25 +1,36 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Search, ShoppingCart, MessageCircle } from "lucide-react";
+import { ChevronDown, Menu, X, ShoppingCart, MessageCircle } from "lucide-react";
 import { Logo } from "./Logo";
+import { ProductSearch } from "./ProductSearch";
 import { useCart } from "@/lib/cart-context";
-import { WHATSAPP_URL } from "@/lib/mock-data";
+import { categories as fallbackCategories, WHATSAPP_PHONE } from "@/lib/mock-data";
+import type { Category, Product } from "@/lib/catalog-types";
 
-const links = [
-  { to: "/", label: "Inicio" },
-  { to: "/catalogo", label: "Categorías" },
-  { to: "/catalogo", label: "Ofertas", search: { tag: "ofertas" } },
-  { to: "/catalogo", label: "Más vendidos", search: { tag: "top" } },
-  { to: "/catalogo", label: "Nuevos ingresos", search: { tag: "nuevos" } },
-  { to: "/contacto", label: "Contacto" },
-] as const;
+type NavbarProps = {
+  categories?: Category[];
+  products?: Product[];
+  whatsappPhone?: string;
+};
 
-export function Navbar() {
+export function Navbar({
+  categories = fallbackCategories,
+  products = [],
+  whatsappPhone = WHATSAPP_PHONE,
+}: NavbarProps) {
   const [open, setOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const { count, open: openCart } = useCart();
-  const path = useRouterState({ select: (s) => s.location.pathname });
+  const location = useRouterState({ select: (s) => s.location.href });
+  const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent("Hola L&A Multiventas")}`;
+  const productCategories = categories.filter(
+    (category) => !["ofertas", "nuevos"].includes(category.slug)
+  );
 
-  useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    setOpen(false);
+    setCategoriesOpen(false);
+  }, [location]);
 
   return (
     <header
@@ -34,31 +45,69 @@ export function Navbar() {
           </div>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1 ml-4">
-          {links.map((l) => (
-            <Link
-              key={l.label}
-              to={l.to}
-              className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
-              activeProps={{ className: "text-brand-royal bg-brand-soft" }}
-              activeOptions={{ exact: l.to === "/" }}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        <nav className="hidden shrink-0 lg:flex items-center gap-1 ml-4">
+          <Link
+            to="/"
+            className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
+            activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+            activeOptions={{ exact: true }}
+          >
+            Inicio
+          </Link>
 
-        <div className="ml-auto flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 shadow-sm w-72">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              placeholder="Buscar productos..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
+          <div
+            className="relative"
+            onMouseEnter={() => setCategoriesOpen(true)}
+            onMouseLeave={() => setCategoriesOpen(false)}
+          >
+            <Link
+              to="/catalogo"
+              className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
+              activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+              onClick={() => setCategoriesOpen(false)}
+            >
+              Categorías
+              <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
+            </Link>
+            <div
+              className={`absolute left-0 top-full z-50 min-w-56 rounded-xl border border-border bg-white p-2 shadow-xl transition-all ${
+                categoriesOpen
+                  ? "visible translate-y-1 opacity-100"
+                  : "invisible translate-y-2 opacity-0"
+              }`}
+            >
+              {productCategories.map((category) => (
+                <Link
+                  key={category.slug}
+                  to="/catalogo"
+                  search={{ categoria: category.slug }}
+                  onClick={() => setCategoriesOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-brand-soft hover:text-brand-royal"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
           </div>
 
+          <Link
+            to="/contacto"
+            className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
+            activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+          >
+            Contacto
+          </Link>
+        </nav>
+
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+          <ProductSearch
+            className="hidden min-w-64 flex-1 md:block lg:max-w-xl xl:max-w-2xl"
+            categories={categories}
+            products={products}
+          />
+
           <a
-            href={WHATSAPP_URL}
+            href={whatsappUrl}
             target="_blank" rel="noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-600 transition"
           >
@@ -92,19 +141,47 @@ export function Navbar() {
       {open && (
         <div className="lg:hidden glass border-t border-border animate-fade-up">
           <div className="mx-auto max-w-7xl space-y-1 px-4 py-3">
-            <div className="flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 mb-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input placeholder="Buscar..." className="w-full bg-transparent text-sm outline-none" />
-            </div>
-            {links.map((l) => (
+            <ProductSearch
+              className="mb-2"
+              compact
+              categories={categories}
+              products={products}
+              onPick={() => setOpen(false)}
+            />
+            <Link
+              to="/"
+              className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground hover:bg-brand-soft hover:text-brand-royal"
+            >
+              Inicio
+            </Link>
+            <div className="rounded-xl border border-border bg-white/80 p-2">
               <Link
-                key={l.label}
-                to={l.to}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground hover:bg-brand-soft hover:text-brand-royal"
+                to="/catalogo"
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-brand-deep hover:bg-brand-soft hover:text-brand-royal"
               >
-                {l.label}
+                Categorías
+                <ChevronDown className="h-4 w-4" />
               </Link>
-            ))}
+              <div className="mt-1 grid gap-1">
+                {productCategories.map((category) => (
+                  <Link
+                    key={category.slug}
+                    to="/catalogo"
+                    search={{ categoria: category.slug }}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-lg px-5 py-2 text-sm font-medium text-foreground/80 hover:bg-brand-soft hover:text-brand-royal"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <Link
+              to="/contacto"
+              className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground hover:bg-brand-soft hover:text-brand-royal"
+            >
+              Contacto
+            </Link>
           </div>
         </div>
       )}

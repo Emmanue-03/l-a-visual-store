@@ -2,16 +2,29 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Star, ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { products, formatPrice } from "@/lib/mock-data";
+import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { ProductCard } from "@/components/ProductCard";
+import { getCatalog } from "@/backend/catalog";
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export const Route = createFileRoute("/producto/$id")({
   component: ProductDetail,
-  loader: ({ params }) => {
-    const p = products.find((x) => x.id === params.id);
+  loader: async ({ params }) => {
+    const catalog = await getCatalog();
+    const p = catalog.products.find((x) => x.slug === params.id || x.id === params.id || slugify(x.name) === params.id);
     if (!p) throw notFound();
-    return { product: p };
+    const related = catalog.products
+      .filter((product) => product.category === p.category && product.id !== p.id)
+      .slice(0, 4);
+    return { product: p, related };
   },
   head: ({ loaderData }) => ({
     meta: loaderData ? [
@@ -30,12 +43,11 @@ export const Route = createFileRoute("/producto/$id")({
 });
 
 function ProductDetail() {
-  const { product } = Route.useLoaderData();
+  const { product, related } = Route.useLoaderData();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
   const gallery = product.gallery ?? [product.image, product.image, product.image];
   const [active, setActive] = useState(0);
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
   const discount = product.oldPrice ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) : 0;
   const addToCart = () => {
     add(product, qty);
@@ -143,3 +155,4 @@ function ProductDetail() {
     </div>
   );
 }
+

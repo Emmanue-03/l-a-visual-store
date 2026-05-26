@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Cpu, Home, Refrigerator, Watch, Wrench, Shirt, Flame, Sparkles, ArrowUpRight } from "lucide-react";
 import { categories } from "@/lib/mock-data";
+import type { Category } from "@/lib/catalog-types";
 
 const iconMap = { Cpu, Home, Refrigerator, Watch, Wrench, Shirt, Flame, Sparkles };
 
-export function CategoriesSection() {
+export function CategoriesSection({ items = categories }: { items?: Category[] }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
       <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
@@ -21,12 +22,13 @@ export function CategoriesSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {categories.map((c, i) => {
+        {items.map((c, i) => {
           const Icon = iconMap[c.icon as keyof typeof iconMap] ?? Sparkles;
           return (
             <Link
               key={c.slug}
               to="/catalogo"
+              search={{ categoria: c.slug }}
               className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-brand-soft to-white p-5 card-hover"
             >
               <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-royal/10 transition-transform duration-500 group-hover:scale-150" />

@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { products } from "@/lib/mock-data";
+import type { Product } from "@/lib/catalog-types";
 import { ProductCard } from "./ProductCard";
 
-export function NewArrivals() {
-  const items = products.filter((p) => p.badge === "Nuevo").concat(products.slice(-2)).slice(0, 4);
+export function NewArrivals({ items }: { items?: Product[] }) {
+  const displayItems = items ?? products.filter((p) => p.badge === "Nuevo").concat(products.slice(-2)).slice(0, 4);
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
       <div className="mb-8 flex items-end justify-between gap-4">
@@ -17,7 +18,7 @@ export function NewArrivals() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {items.map((p) => <ProductCard key={p.id} product={p} />)}
+        {displayItems.map((p) => <ProductCard key={p.id} product={p} />)}
       </div>
       <div className="mt-8 text-center">
         <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-6 py-3 font-semibold text-brand-deep hover:bg-brand-soft transition">

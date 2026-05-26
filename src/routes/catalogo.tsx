@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { products, categories } from "@/lib/mock-data";
 import { ProductCard } from "@/components/ProductCard";
+import { getCatalog } from "@/backend/catalog";
 
 export const Route = createFileRoute("/catalogo")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    categoria: typeof search.categoria === "string" ? search.categoria : undefined,
+    tag: typeof search.tag === "string" ? search.tag : undefined,
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
+  loader: () => getCatalog(),
   component: CatalogPage,
   head: () => ({
     meta: [
@@ -16,15 +22,31 @@ export const Route = createFileRoute("/catalogo")({
 
 type Sort = "destacados" | "menor" | "mayor" | "nuevos" | "ofertas";
 
+const categoryFromSearch = (search: { categoria?: string; tag?: string }) => {
+  if (search.categoria) return search.categoria;
+  if (search.tag === "ofertas") return "ofertas";
+  if (search.tag === "nuevos") return "nuevos";
+  return "todas";
+};
+
 function CatalogPage() {
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("todas");
+  const search = Route.useSearch();
+  const { products, categories } = Route.useLoaderData();
+  const [q, setQ] = useState(search.q ?? "");
+  const [cat, setCat] = useState<string>(() => categoryFromSearch(search));
   const [sort, setSort] = useState<Sort>("destacados");
   const [maxPrice, setMaxPrice] = useState<number>(2000000);
 
+  useEffect(() => {
+    setCat(categoryFromSearch(search));
+    setQ(search.q ?? "");
+  }, [search.categoria, search.tag, search.q]);
+
   const filtered = useMemo(() => {
     let list = products.filter((p) => p.price <= maxPrice);
-    if (cat !== "todas") list = list.filter((p) => p.category === cat);
+    if (cat === "ofertas") list = list.filter((p) => p.oldPrice);
+    else if (cat === "nuevos") list = list.filter((p) => p.badge === "Nuevo");
+    else if (cat !== "todas") list = list.filter((p) => p.category === cat);
     if (q) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
     switch (sort) {
       case "menor": list = [...list].sort((a, b) => a.price - b.price); break;
@@ -108,3 +130,4 @@ function CatalogPage() {
     </div>
   );
 }
+
