@@ -21,16 +21,6 @@ const fallbackSettings: SiteSettings = {
   defaultShippingCost: 0,
 };
 
-function mockPayload(reason?: string): CatalogPayload {
-  return {
-    products: mockProducts,
-    categories: mockCategories,
-    settings: fallbackSettings,
-    source: "mock",
-    fallbackReason: reason,
-  };
-}
-
 export async function getCatalogData(): Promise<CatalogPayload> {
   try {
     const [productsRows, categoryRows, settingsRows] = await Promise.all([
@@ -55,6 +45,9 @@ export async function getCatalogData(): Promise<CatalogPayload> {
     ]);
 
     const products = productsRows.map(mapDbProduct);
+    // Normalizamos por slug en lowercase + trim para que la categoria del
+    // producto matchee la del listado aunque alguna haya quedado con caso
+    // mezclado en DB (ej. cargas manuales SQL).
     const norm = (value?: string | null) => (value ?? "").trim().toLowerCase();
     const counts = products.reduce<Record<string, number>>((acc, product) => {
       const key = norm(product.category);
@@ -73,46 +66,25 @@ export async function getCatalogData(): Promise<CatalogPayload> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("[catalog] Supabase failed — using mock:", message);
-    return mockPayload(message);
+    console.error(
+      "[catalog] Cayendo al fallback de mock data — la lectura de Supabase fallo:",
+      message,
+    );
+    return {
+      products: mockProducts,
+      categories: mockCategories,
+      settings: fallbackSettings,
+      source: "mock",
+      fallbackReason: message,
+    };
   }
 }
 
-// Server fn internos. Si hay servidor, hacen el trabajo real.
-const _getCatalogServer = createServerFn({ method: "GET" }).handler(getCatalogData);
+export const getCatalog = createServerFn({ method: "GET" }).handler(getCatalogData);
 
-const _getProductBySlugOrIdServer = createServerFn({ method: "GET" })
+export const getProductBySlugOrId = createServerFn({ method: "GET" })
   .inputValidator((value: { id: string }) => value)
   .handler(async ({ data }) => {
     const catalog = await getCatalogData();
     return catalog.products.find((product) => product.slug === data.id || product.id === data.id) ?? null;
   });
-
-// Wrappers publicos con fallback a mock cuando NO hay servidor (SPA-only en
-// Vercel). En SPA el server fn intenta hacer fetch a un endpoint que no
-// existe, la promesa rechaza con network error, y el catch cae a mock.
-// En modo SSR (cuando vuelva), el server fn ejecuta normalmente.
-export async function getCatalog(): Promise<CatalogPayload> {
-  try {
-    return await _getCatalogServer();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn("[catalog] getCatalog server fn fallo, mock:", message);
-    return mockPayload(message);
-  }
-}
-
-export async function getProductBySlugOrId(input: {
-  data: { id: string };
-}): Promise<Product | null> {
-  try {
-    return await _getProductBySlugOrIdServer(input);
-  } catch (error) {
-    console.warn(
-      "[catalog] getProductBySlugOrId server fn fallo, buscando en mock:",
-      error instanceof Error ? error.message : String(error),
-    );
-    const id = input.data.id;
-    return mockProducts.find((product) => product.slug === id || product.id === id) ?? null;
-  }
-}

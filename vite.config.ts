@@ -6,29 +6,10 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Deploy target: Vercel. Desactivamos el plugin de Cloudflare que el lovable
-// config incluye por default y forzamos noExternal en SSR para que TODAS las
-// dependencias queden inlineadas en dist/server/. Sin esto, el build externaliza
-// @tanstack/react-router, react, h3-v2, seroval, etc., y la funcion serverless
-// (que no tiene node_modules) crashea con FUNCTION_INVOCATION_FAILED al arrancar.
+// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+// @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
-  cloudflare: false,
   tanstackStart: {
     server: { entry: "server" },
-  },
-  vite: {
-    ssr: {
-      noExternal: true,
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          // Fuerza un solo archivo de salida SSR sin chunks dinamicos. Asi el
-          // bundle no depende de paths relativos resueltos en runtime: si
-          // Vercel cambia el cwd o la ubicacion del archivo, no rompe.
-          inlineDynamicImports: true,
-        },
-      },
-    },
   },
 });
