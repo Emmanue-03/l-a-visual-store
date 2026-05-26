@@ -100,7 +100,9 @@ export const loginAdmin = createServerFn({ method: "POST" })
     if (!valid) return { ok: false, message: "Credenciales invalidas" };
 
     await updateSession(config, { adminUserId: admin.id });
-    await restUpdate("admin_users", { last_login_at: new Date().toISOString() }, { id: `eq.${admin.id}` });
+    await restUpdate("admin_users", { last_login_at: new Date().toISOString() }, { id: `eq.${admin.id}` }).catch(
+      () => null,
+    );
     await restInsert("audit_log", {
       admin_user_id: admin.id,
       action: "login",

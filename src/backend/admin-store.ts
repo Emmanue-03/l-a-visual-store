@@ -36,12 +36,21 @@ const settingsSchema = z.object({
   seoDescription: z.string().optional(),
 });
 
+async function safeSelect<T>(table: string, query: Parameters<typeof restSelect<T>>[1]) {
+  return restSelect<T>(table, query).catch((error) => {
+    console.warn(`Admin data unavailable for ${table}:`, error);
+    return [] as T[];
+  });
+}
+
 export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminUser();
   const [products, categories, orders] = await Promise.all([
-    restSelect<{ id: string; is_active: boolean; stock: number; low_stock_threshold: number }>("products", { select: "id,is_active,stock,low_stock_threshold" }),
-    restSelect<{ id: string; is_active: boolean }>("categories", { select: "id,is_active" }),
-    restSelect<AdminOrder>("orders", { select: "*", order: "created_at.desc", limit: 6 }),
+    safeSelect<{ id: string; is_active: boolean; stock: number; low_stock_threshold: number }>("products", {
+      select: "id,is_active,stock,low_stock_threshold",
+    }),
+    safeSelect<{ id: string; is_active: boolean }>("categories", { select: "id,is_active" }),
+    safeSelect<AdminOrder>("orders", { select: "*", order: "created_at.desc", limit: 6 }),
   ]);
 
   return {
@@ -55,7 +64,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
 
 export const listAdminOrders = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminUser();
-  return restSelect<AdminOrder>("orders", { select: "*", order: "created_at.desc" });
+  return safeSelect<AdminOrder>("orders", { select: "*", order: "created_at.desc" });
 });
 
 export const updateAdminOrderStatus = createServerFn({ method: "POST" })
@@ -75,7 +84,7 @@ export const updateAdminOrderStatus = createServerFn({ method: "POST" })
 
 export const getAdminSettings = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminUser();
-  const rows = await restSelect<{ key: string; value: unknown }>("site_settings", { select: "key,value" });
+  const rows = await safeSelect<{ key: string; value: unknown }>("site_settings", { select: "key,value" });
   return mapSettings(rows);
 });
 

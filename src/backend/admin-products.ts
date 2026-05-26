@@ -50,8 +50,8 @@ async function getCategoriesMap() {
 
 async function readProducts() {
   const [rows, categories] = await Promise.all([
-    restSelect<DbProduct>("products", { select: "*", order: "created_at.desc" }),
-    getCategoriesMap(),
+    restSelect<DbProduct>("products", { select: "*", order: "created_at.desc" }).catch(() => []),
+    getCategoriesMap().catch(() => ({})),
   ]);
 
   return rows.map((row) => {

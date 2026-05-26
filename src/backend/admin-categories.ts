@@ -28,7 +28,7 @@ export type AdminCategoryRow = Category & {
 
 export const listAdminCategories = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminUser();
-  return restSelect<AdminCategoryRow>("categories", { select: "*", order: "sort_order.asc,name.asc" });
+  return restSelect<AdminCategoryRow>("categories", { select: "*", order: "sort_order.asc,name.asc" }).catch(() => []);
 });
 
 export const saveAdminCategory = createServerFn({ method: "POST" })
