@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { clearSession, getRequestHeader, updateSession, useSession } from "@tanstack/react-start/server";
 import { z } from "zod";
 import type { AdminUser } from "@/lib/catalog-types";
-import { requiredServerEnv } from "./env";
+import { getServerEnv } from "./env";
 import { verifyPassword } from "./crypto";
 import { restInsert, restSelect, restUpdate } from "./supabase-rest";
 
@@ -25,13 +25,16 @@ const loginSchema = z.object({
 });
 
 function sessionConfig() {
+  const password = getServerEnv("ADMIN_SESSION_SECRET");
+  if (!password) return null;
+
   return {
     name: "la_admin_session",
-    password: requiredServerEnv("ADMIN_SESSION_SECRET"),
+    password,
     maxAge: 60 * 60 * 8,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: getServerEnv("NODE_ENV") === "production",
       sameSite: "lax" as const,
       path: "/",
     },
@@ -49,9 +52,12 @@ function publicAdmin(row: AdminUserRow): AdminUser {
 }
 
 export async function getAdminSessionUser() {
+  const config = sessionConfig();
+  if (!config) return null;
+
   // TanStack Start exposes this server utility as useSession; it is not a React Hook.
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const session = await useSession<AdminSessionData>(sessionConfig());
+  const session = await useSession<AdminSessionData>(config);
   const adminUserId = session.data.adminUserId;
   if (!adminUserId) return null;
 
@@ -59,7 +65,7 @@ export async function getAdminSessionUser() {
     select: "id,email,password_hash,full_name,role,is_active",
     id: `eq.${adminUserId}`,
     limit: 1,
-  });
+  }).catch(() => []);
 
   if (!admin?.is_active) return null;
   return publicAdmin(admin);
@@ -76,19 +82,24 @@ export const getCurrentAdmin = createServerFn({ method: "GET" }).handler(getAdmi
 export const loginAdmin = createServerFn({ method: "POST" })
   .inputValidator((value: unknown) => loginSchema.parse(value))
   .handler(async ({ data }) => {
+    const config = sessionConfig();
+    if (!config) {
+      return { ok: false, message: "Falta configurar ADMIN_SESSION_SECRET en el servidor" };
+    }
+
     const email = data.email.trim().toLowerCase();
     const [admin] = await restSelect<AdminUserRow>("admin_users", {
       select: "id,email,password_hash,full_name,role,is_active",
       email: `eq.${email}`,
       limit: 1,
-    });
+    }).catch(() => []);
 
     if (!admin || !admin.is_active) return { ok: false, message: "Credenciales invalidas" };
 
     const valid = await verifyPassword(data.password, admin.password_hash);
     if (!valid) return { ok: false, message: "Credenciales invalidas" };
 
-    await updateSession(sessionConfig(), { adminUserId: admin.id });
+    await updateSession(config, { adminUserId: admin.id });
     await restUpdate("admin_users", { last_login_at: new Date().toISOString() }, { id: `eq.${admin.id}` });
     await restInsert("audit_log", {
       admin_user_id: admin.id,
@@ -103,6 +114,7 @@ export const loginAdmin = createServerFn({ method: "POST" })
   });
 
 export const logoutAdmin = createServerFn({ method: "POST" }).handler(async () => {
-  await clearSession(sessionConfig());
+  const config = sessionConfig();
+  if (config) await clearSession(config);
   return { ok: true };
 });
