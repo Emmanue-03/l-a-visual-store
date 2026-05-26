@@ -6,9 +6,11 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-// @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
+// Deploy target: Vercel. Desactivamos el plugin de Cloudflare que el lovable
+// config incluye por default; sin el, el build de SSR queda como modulo ESM
+// generico que cargamos desde api/index.ts (Vercel Edge Function).
 export default defineConfig({
+  cloudflare: false,
   tanstackStart: {
     server: { entry: "server" },
   },
