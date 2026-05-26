@@ -7,10 +7,11 @@
 //   ├── static/                                 assets servidos directo (mirror de dist/client)
 //   └── functions/index.func/
 //       ├── .vc-config.json                     runtime nodejs + handler
-//       ├── package.json                        type:module para que Node trate .js como ESM
 //       ├── index.mjs                           handler que envuelve dist/server/server.js
 //       └── server-bundle/                      copia de dist/server (referenciada por el handler)
-//           └── package.json                    type:module tambien aca por si Node usa el nearest
+//
+// Vercel encuentra .vercel/output/ y deploya directo, sin pasar por su
+// auto-detector. Esto evita el rewrite/api-folder y nos da control total.
 
 import { promises as fs } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -22,7 +23,6 @@ const distDir = join(projectRoot, "dist");
 const outDir = join(projectRoot, ".vercel", "output");
 const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "index.func");
-const bundleDir = join(fnDir, "server-bundle");
 
 async function exists(path) {
   try {
@@ -61,87 +61,59 @@ if (!(await exists(distClient)) || !(await exists(distServer))) {
   process.exit(1);
 }
 
+// Limpiamos cualquier salida anterior para evitar artefactos viejos.
 await rmrf(outDir);
 await fs.mkdir(outDir, { recursive: true });
 
 // 1) Static assets
 await copyDir(distClient, staticDir);
 
-// 2) Server bundle adentro de la funcion
+// 2) Function dir + server bundle adentro
 await fs.mkdir(fnDir, { recursive: true });
-await copyDir(distServer, bundleDir);
+await copyDir(distServer, join(fnDir, "server-bundle"));
 
-// 3) package.json type:module en TODOS los niveles donde Node pueda buscar.
-// Vite emite el bundle como ESM con extension .js; sin un package.json con
-// type:module cerca, Node lo trata como CJS y falla al parsear "export".
-const esmPkg = JSON.stringify({ type: "module" }, null, 2);
-await fs.writeFile(join(fnDir, "package.json"), esmPkg, "utf8");
-await fs.writeFile(join(bundleDir, "package.json"), esmPkg, "utf8");
-
-// 4) Handler wrapper
+// 3) Handler wrapper: re-exporta el fetch del bundle como handler default.
 const handler = `// Auto-generado por scripts/vercel-pack.mjs.
+// Vercel invoca este modulo como funcion serverless. Adentro vive el bundle
+// SSR generado por TanStack Start; lo cargamos una sola vez y reusamos.
+
 import server from "./server-bundle/server.js";
 
+let cached;
 function getServer() {
-  return server?.default ?? server;
-}
-
-function plainErrorResponse(message, stack) {
-  const safe = (value) => String(value ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const body = '<!doctype html><meta charset="utf-8"><title>500</title>'
-    + '<style>body{font:14px/1.5 system-ui;padding:2rem;color:#111}'
-    + 'pre{background:#fff;border:1px solid #ddd;padding:1rem;border-radius:6px;overflow:auto;white-space:pre-wrap;word-break:break-word}'
-    + 'h1{color:#b91c1c}</style>'
-    + '<h1>500 - SSR fallo</h1><pre>' + safe(message) + '</pre>'
-    + (stack ? '<details><summary>stack</summary><pre>' + safe(stack) + '</pre></details>' : '');
-  return new Response(body, {
-    status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
-  });
+  if (cached) return cached;
+  cached = server?.default ?? server;
+  return cached;
 }
 
 export default async function handler(request) {
-  const url = new URL(request.url);
-
-  // Health check para verificar que la funcion arranca.
-  if (url.pathname === "/_health") {
-    return new Response(JSON.stringify({
-      ok: true,
-      url: request.url,
-      method: request.method,
-      hasSupabaseUrl: Boolean(process.env.SUPABASE_URL),
-      hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      hasSessionSecret: Boolean(process.env.ADMIN_SESSION_SECRET),
-      hasViteSupabaseUrl: Boolean(process.env.VITE_SUPABASE_URL),
-      nodeVersion: process.version,
-    }, null, 2), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
-  }
-
   try {
     const s = getServer();
     if (typeof s?.fetch !== "function") {
-      return plainErrorResponse("Bundle SSR invalido: no expone fetch.");
+      return new Response(
+        "Bundle SSR invalido: no expone fetch.",
+        { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } }
+      );
     }
-    // 9s timeout (< Vercel default 10s) para no quedar colgados sin respuesta.
-    const ssr = s.fetch(request, {}, {});
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("SSR handler timeout (9s)")), 9000),
-    );
-    return await Promise.race([ssr, timeout]);
+    return await s.fetch(request, {}, {});
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack ?? "" : "";
     console.error("[vercel handler] SSR error:", error);
-    return plainErrorResponse(msg, stack);
+    const body = \`<!doctype html><meta charset="utf-8"><title>500</title>
+<style>body{font:14px/1.5 system-ui;padding:2rem;color:#111}pre{background:#fff;border:1px solid #ddd;padding:1rem;border-radius:6px;overflow:auto}h1{color:#b91c1c}</style>
+<h1>500 - SSR fallo</h1><pre>\${msg.replace(/</g, "&lt;")}</pre>
+\${stack ? \`<details><summary>stack</summary><pre>\${stack.replace(/</g, "&lt;")}</pre></details>\` : ""}\`;
+    return new Response(body, {
+      status: 500,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
   }
 }
 `;
 await fs.writeFile(join(fnDir, "index.mjs"), handler, "utf8");
 
-// 5) Function config
+// 4) Function config (runtime + handler entry)
 const fnConfig = {
   runtime: "nodejs20.x",
   handler: "index.mjs",
@@ -151,7 +123,7 @@ const fnConfig = {
 };
 await fs.writeFile(join(fnDir, ".vc-config.json"), JSON.stringify(fnConfig, null, 2), "utf8");
 
-// 6) Routing
+// 5) Routing: assets desde static primero; todo lo demas a la funcion.
 const config = {
   version: 3,
   routes: [
