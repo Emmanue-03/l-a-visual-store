@@ -16,7 +16,7 @@ type CatalogPayload = {
 
 const fallbackSettings: SiteSettings = {
   storeName: "L&A Multiventas",
-  whatsappPhone: "595981625726",
+  whatsappPhone: "595975484333",
   currency: "PYG",
   defaultShippingCost: 0,
 };

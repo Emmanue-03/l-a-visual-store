@@ -19,7 +19,7 @@ ON CONFLICT (slug) DO UPDATE SET
   `INSERT INTO lamultiventas.site_settings (key, value, description)
 VALUES
   ('store_name', to_jsonb('L&A Multiventas'::text), 'Nombre publico de la tienda'),
-  ('whatsapp_phone', to_jsonb('595981625726'::text), 'Telefono WhatsApp en formato internacional sin +'),
+  ('whatsapp_phone', to_jsonb('595975484333'::text), 'Telefono WhatsApp en formato internacional sin +'),
   ('currency', to_jsonb('PYG'::text), 'Moneda principal'),
   ('default_shipping_cost', to_jsonb(25000), 'Costo de envio por defecto'),
   ('seo_title', to_jsonb('L&A Multiventas | Tu multitienda online de confianza'::text), 'Titulo SEO principal'),

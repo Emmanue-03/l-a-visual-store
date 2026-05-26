@@ -94,7 +94,7 @@ export function mapSettings(rows: { key: string; value: unknown }[]): SiteSettin
   const values = Object.fromEntries(rows.map((row) => [row.key, row.value])) as Record<string, unknown>;
   return {
     storeName: String(values.store_name ?? "L&A Multiventas"),
-    whatsappPhone: String(values.whatsapp_phone ?? "595981625726"),
+    whatsappPhone: String(values.whatsapp_phone ?? "595975484333"),
     currency: String(values.currency ?? "PYG"),
     defaultShippingCost: Number(values.default_shipping_cost ?? 0),
     seoTitle: typeof values.seo_title === "string" ? values.seo_title : undefined,

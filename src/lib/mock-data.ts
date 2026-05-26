@@ -120,7 +120,7 @@ export const testimonials = [
   { name: "Martín L.", text: "Envío rápido y todo llegó como en las fotos. Vuelvo a comprar seguro.", rating: 5 },
 ];
 
-export const WHATSAPP_PHONE = "595981625726";
+export const WHATSAPP_PHONE = "595975484333";
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("Hola L&A Multiventas")}`;
 
 export const formatPrice = (n: number) =>
