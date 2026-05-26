@@ -20,5 +20,15 @@ export default defineConfig({
     ssr: {
       noExternal: true,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // Fuerza un solo archivo de salida SSR sin chunks dinamicos. Asi el
+          // bundle no depende de paths relativos resueltos en runtime: si
+          // Vercel cambia el cwd o la ubicacion del archivo, no rompe.
+          inlineDynamicImports: true,
+        },
+      },
+    },
   },
 });
