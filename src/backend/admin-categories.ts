@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Category } from "@/lib/catalog-types";
 import { requireAdminUser } from "./admin-auth";
-import { restInsert, restSelect, restUpdate } from "./supabase-rest";
+import { restDelete, restInsert, restSelect, restUpdate } from "./supabase-rest";
 
 const nullableText = z
   .string()
@@ -72,4 +72,40 @@ export const setAdminCategoryActive = createServerFn({ method: "POST" })
       new_data: { is_active: data.is_active },
     }).catch(() => null);
     return category ?? null;
+  });
+
+export const deleteAdminCategory = createServerFn({ method: "POST" })
+  .inputValidator((value: { id: string }) => value)
+  .handler(async ({ data }) => {
+    const admin = await requireAdminUser();
+
+    const [snapshot] = await restSelect<AdminCategoryRow>("categories", {
+      select: "*",
+      id: `eq.${data.id}`,
+      limit: 1,
+    }).catch(() => [] as AdminCategoryRow[]);
+
+    try {
+      await restDelete("categories", { id: `eq.${data.id}` });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      // products.category_id referencia categories.id. Si hay productos
+      // colgando, el delete falla con violacion de FK.
+      if (/foreign key|violates|23503/i.test(message)) {
+        throw new Error(
+          "No se puede eliminar: hay productos asignados a esta categoria. Borralos o reasignalos a otra categoria primero.",
+        );
+      }
+      throw new Error(`No se pudo eliminar: ${message}`);
+    }
+
+    await restInsert("audit_log", {
+      admin_user_id: admin.id,
+      action: "delete",
+      entity: "categories",
+      entity_id: data.id,
+      old_data: snapshot ?? null,
+    }).catch(() => null);
+
+    return { ok: true };
   });

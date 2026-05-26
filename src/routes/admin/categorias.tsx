@@ -6,6 +6,7 @@ import {
   Plus,
   Search,
   Sparkles,
+  Trash2,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { CategoryDialog } from "@/components/admin/CategoryDialog";
 import { getCurrentAdmin } from "@/backend/admin-auth";
 import {
+  deleteAdminCategory,
   listAdminCategories,
   setAdminCategoryActive,
   type AdminCategoryRow,
@@ -75,6 +77,24 @@ function AdminCategoriesPage() {
       router.invalidate();
     } catch (error) {
       toast.error(formatAdminError(error, "No se pudo cambiar el estado."));
+    }
+  };
+
+  const handleDelete = async (category: AdminCategoryRow) => {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `Eliminar la categoria «${category.name}» definitivamente? Esta accion no se puede deshacer.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      await deleteAdminCategory({ data: { id: category.id } });
+      toast.success("Categoria eliminada");
+      router.invalidate();
+    } catch (error) {
+      toast.error(formatAdminError(error, "No se pudo eliminar la categoria."));
     }
   };
 
@@ -206,6 +226,15 @@ function AdminCategoriesPage() {
                     }`}
                   >
                     {category.is_active ? "Desactivar" : "Activar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(category)}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    aria-label={`Eliminar ${category.name}`}
+                    title="Eliminar definitivamente"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </article>
