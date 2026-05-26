@@ -1,5 +1,6 @@
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { ImageOff, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminCategoryRow } from "@/backend/admin-categories";
 import type { DbProduct } from "@/lib/catalog-mappers";
@@ -90,6 +91,8 @@ type ProductFormProps = {
 };
 
 export function ProductForm({ product, categories, onSubmit, submitting }: ProductFormProps) {
+  const [galleryUrls, setGalleryUrls] = useState<string[]>(() => product?.gallery_urls ?? []);
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formEl = event.currentTarget;
@@ -119,7 +122,7 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       stock: Number(form.get("stock") || 0),
       low_stock_threshold: Number(form.get("low_stock_threshold") || 5),
       image_url: String(form.get("image_url") ?? "").trim(),
-      gallery_urls: lines("gallery_urls"),
+      gallery_urls: galleryUrls.map((url) => url.trim()).filter(Boolean),
       features: lines("features"),
       is_active: form.get("is_active") === "on",
       is_featured: form.get("is_featured") === "on",
@@ -129,6 +132,12 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       seo_title: String(form.get("seo_title") || "") || null,
       seo_description: String(form.get("seo_description") || "") || null,
     };
+
+    const invalidGallery = payload.gallery_urls.find((url) => !isValidUrl(url));
+    if (invalidGallery) {
+      toast.error(`Galeria: la URL «${invalidGallery}» no es valida.`);
+      return;
+    }
 
     const error = validatePayload(payload);
     if (error) {
@@ -185,7 +194,7 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       <aside className="space-y-4">
         <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
           <Field label="Imagen principal URL" name="image_url" type="url" defaultValue={product?.image_url} required />
-          <Textarea label="Galeria URLs" name="gallery_urls" defaultValue={(product?.gallery_urls ?? []).join("\n")} />
+          <GalleryList urls={galleryUrls} onChange={setGalleryUrls} />
           <Field label="Orden" name="sort_order" type="number" defaultValue={product?.sort_order ?? 0} />
         </section>
 
@@ -251,6 +260,96 @@ function Checkbox({ label, name, defaultChecked }: { label: string; name: string
       <input name={name} type="checkbox" defaultChecked={defaultChecked} className="h-4 w-4 rounded border-slate-300" />
       {label}
     </label>
+  );
+}
+
+function GalleryList({
+  urls,
+  onChange,
+}: {
+  urls: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const update = (index: number, value: string) => {
+    onChange(urls.map((url, i) => (i === index ? value : url)));
+  };
+  const remove = (index: number) => {
+    onChange(urls.filter((_, i) => i !== index));
+  };
+  const add = () => {
+    onChange([...urls, ""]);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-700">Galeria de imagenes</span>
+        <span className="text-xs text-slate-500 tabular-nums">
+          {urls.length} {urls.length === 1 ? "imagen" : "imagenes"}
+        </span>
+      </div>
+      <p className="mt-0.5 text-[11px] text-slate-500">
+        Pegá las URLs de a una. Cada una aparece como imagen extra en la pagina del producto.
+      </p>
+
+      {urls.length === 0 ? (
+        <div className="mt-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
+          Sin imagenes adicionales. La principal es la unica visible.
+        </div>
+      ) : (
+        <ul className="mt-2 space-y-2">
+          {urls.map((url, index) => (
+            <li key={index} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2">
+              <GalleryPreview url={url} />
+              <input
+                type="url"
+                value={url}
+                onChange={(event) => update(index, event.target.value)}
+                placeholder="https://..."
+                className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-brand-royal"
+              />
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                aria-label={`Eliminar imagen ${index + 1}`}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button
+        type="button"
+        onClick={add}
+        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-brand-royal/40 px-3 py-2 text-xs font-bold text-brand-royal hover:bg-brand-soft"
+      >
+        <Plus className="h-3.5 w-3.5" /> Agregar URL
+      </button>
+    </div>
+  );
+}
+
+function GalleryPreview({ url }: { url: string }) {
+  const valid = url.trim().length > 0 && isValidUrl(url);
+  if (!valid) {
+    return (
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md border border-slate-200 bg-slate-50 text-slate-300">
+        <ImageOff className="h-4 w-4" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt="preview"
+      onError={(event) => {
+        (event.currentTarget as HTMLImageElement).style.opacity = "0.2";
+      }}
+      className="h-12 w-12 shrink-0 rounded-md border border-slate-200 bg-slate-100 object-cover"
+    />
   );
 }
 
