@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { mapDbProduct, type DbProduct } from "@/lib/catalog-mappers";
+import type { DbProduct } from "@/lib/catalog-mappers";
 import type { Category } from "@/lib/catalog-types";
 import { requireAdminUser } from "./admin-auth";
 import { restInsert, restSelect, restUpdate } from "./supabase-rest";
@@ -54,19 +54,22 @@ async function getCategoriesMap() {
   }, {});
 }
 
-async function readProducts() {
+async function readProducts(): Promise<DbProduct[]> {
   const [rows, categories] = await Promise.all([
     restSelect<DbProduct>("products", { select: "*", order: "created_at.desc" }).catch(() => []),
     getCategoriesMap().catch(() => ({})),
   ]);
 
+  // Devuelve filas crudas (snake_case) enriquecidas con el slug/nombre de la
+  // categoria para que la UI muestre el dato y el dialog de edicion reciba
+  // la forma esperada por ProductForm.
   return rows.map((row) => {
     const category = row.category_id ? categories[row.category_id] : undefined;
-    return mapDbProduct({
+    return {
       ...row,
       category_slug: category?.slug ?? "sin-categoria",
       category_name: category?.name ?? "Sin categoria",
-    });
+    };
   });
 }
 
