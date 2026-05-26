@@ -132,8 +132,10 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
       is_best_seller: form.get("is_best_seller") === "on",
       is_new_arrival: form.get("is_new_arrival") === "on",
       sort_order: Number(form.get("sort_order") || 0),
-      seo_title: String(form.get("seo_title") || "") || null,
-      seo_description: String(form.get("seo_description") || "") || null,
+      // SEO title y description se sacaron del form para simplificar la UX.
+      // Al editar preservamos el valor existente; al crear quedan en null.
+      seo_title: product?.seo_title ?? null,
+      seo_description: product?.seo_description ?? null,
     };
 
     const invalidGallery = payload.gallery_urls.find((url) => !isValidUrl(url));
@@ -237,9 +239,7 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
           <Checkbox label="Nuevo ingreso" name="is_new_arrival" defaultChecked={product?.is_new_arrival ?? false} />
         </section>
 
-        <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
-          <Field label="SEO title" name="seo_title" defaultValue={product?.seo_title ?? ""} />
-          <Textarea label="SEO description" name="seo_description" defaultValue={product?.seo_description ?? ""} />
+        <section className="rounded-xl border border-slate-200 bg-white p-5">
           <button type="submit" disabled={submitting} className="w-full rounded-lg bg-brand-royal px-4 py-3 text-sm font-bold text-white disabled:opacity-60">
             {submitting ? "Guardando..." : "Guardar producto"}
           </button>
