@@ -6,29 +6,35 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Deploy target: Vercel (Build Output API).
-// - cloudflare:false → deshabilita @cloudflare/vite-plugin para que no genere
-//   worker-entry.js. El SSR build sale como ESM generico.
-// - ssr.noExternal:true → inlinea TODAS las dependencias (react, tanstack,
-//   h3, seroval, etc.) en el bundle, asi la funcion serverless no necesita
-//   node_modules para arrancar.
-// - inlineDynamicImports:true → un solo dist/server/server.js sin chunks.
-//   Elimina paths relativos que pueden romperse en runtime.
+// El plugin @cloudflare/vite-plugin del wrapper de lovable es necesario para
+// que `vite dev` levante el SSR worker simulado. Si lo deshabilitamos siempre,
+// `npm run dev` rompe el panel admin con «This page didn't load».
+//
+// Vercel setea VERCEL=1 durante su build. Tambien detectamos cuando alguien
+// corre `npm run vercel-build` localmente (npm setea npm_lifecycle_event).
+// En cualquier otro caso (dev, npm run build) dejamos CF activo.
+const isVercelBuild =
+  process.env.VERCEL === "1" ||
+  process.env.VERCEL_BUILD === "1" ||
+  process.env.npm_lifecycle_event === "vercel-build";
+
 export default defineConfig({
-  cloudflare: false,
+  cloudflare: isVercelBuild ? false : undefined,
   tanstackStart: {
     server: { entry: "server" },
   },
-  vite: {
-    ssr: {
-      noExternal: true,
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          inlineDynamicImports: true,
+  vite: isVercelBuild
+    ? {
+        ssr: {
+          noExternal: true,
         },
-      },
-    },
-  },
+        build: {
+          rollupOptions: {
+            output: {
+              inlineDynamicImports: true,
+            },
+          },
+        },
+      }
+    : undefined,
 });
