@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { DbProduct } from "@/lib/catalog-mappers";
 import type { Category } from "@/lib/catalog-types";
 import { requireAdminUser } from "./admin-auth";
-import { restInsert, restSelect, restUpdate } from "./supabase-rest";
+import { restDelete, restInsert, restSelect, restUpdate } from "./supabase-rest";
 
 // nullish() acepta string | null | undefined — el form envía null para campos vacios
 // (SKU, SEO title/description, etc.). Con .optional() solo, zod rechazaba el null.
@@ -119,4 +119,41 @@ export const setAdminProductActive = createServerFn({ method: "POST" })
       new_data: { is_active: data.is_active },
     }).catch(() => null);
     return product ?? null;
+  });
+
+export const deleteAdminProduct = createServerFn({ method: "POST" })
+  .inputValidator((value: { id: string }) => value)
+  .handler(async ({ data }) => {
+    const admin = await requireAdminUser();
+
+    // Snapshot del producto antes de borrar para auditoria.
+    const [snapshot] = await restSelect<DbProduct>("products", {
+      select: "*",
+      id: `eq.${data.id}`,
+      limit: 1,
+    }).catch(() => [] as DbProduct[]);
+
+    try {
+      await restDelete("products", { id: `eq.${data.id}` });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      // Si hay order_items que referencian este product_id, el FK lo impide.
+      // Sugerimos desactivarlo en su lugar para no perder historial de pedidos.
+      if (/foreign key|violates|23503/i.test(message)) {
+        throw new Error(
+          "No se puede eliminar: hay pedidos que lo referencian. Desactivalo en vez de borrarlo para preservar el historial.",
+        );
+      }
+      throw new Error(`No se pudo eliminar: ${message}`);
+    }
+
+    await restInsert("audit_log", {
+      admin_user_id: admin.id,
+      action: "delete",
+      entity: "products",
+      entity_id: data.id,
+      old_data: snapshot ?? null,
+    }).catch(() => null);
+
+    return { ok: true };
   });

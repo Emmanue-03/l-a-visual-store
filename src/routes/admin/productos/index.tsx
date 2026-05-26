@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Edit, Plus, Search } from "lucide-react";
+import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProductDialog, type ProductDialogState } from "@/components/admin/ProductDialog";
@@ -8,7 +8,11 @@ import { formatPrice } from "@/lib/mock-data";
 import { formatAdminError } from "@/lib/error-format";
 import { getCurrentAdmin } from "@/backend/admin-auth";
 import { listAdminCategories } from "@/backend/admin-categories";
-import { listAdminProducts, setAdminProductActive } from "@/backend/admin-products";
+import {
+  deleteAdminProduct,
+  listAdminProducts,
+  setAdminProductActive,
+} from "@/backend/admin-products";
 
 export const Route = createFileRoute("/admin/productos/")({
   loader: async () => {
@@ -62,6 +66,22 @@ function AdminProducts() {
       router.invalidate();
     } catch (error) {
       toast.error(formatAdminError(error, "No se pudo cambiar el estado."));
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Eliminar «${name}» definitivamente? Esta accion no se puede deshacer.`)
+    ) {
+      return;
+    }
+    try {
+      await deleteAdminProduct({ data: { id } });
+      toast.success("Producto eliminado");
+      router.invalidate();
+    } catch (error) {
+      toast.error(formatAdminError(error, "No se pudo eliminar el producto."));
     }
   };
 
@@ -186,6 +206,15 @@ function AdminProducts() {
                         className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold hover:bg-slate-50"
                       >
                         {product.is_active ? "Desactivar" : "Activar"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(product.id, product.name)}
+                        className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                        aria-label={`Eliminar ${product.name}`}
+                        title="Eliminar definitivamente"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
