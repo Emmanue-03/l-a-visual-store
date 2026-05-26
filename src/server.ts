@@ -66,9 +66,20 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+// Los navegadores piden /favicon.ico automaticamente sin importar lo que
+// diga el <link rel="icon"> del HTML. Redirigimos al asset alojado en
+// Cloudinary para evitar el 404 en consola.
+const FAVICON_URL =
+  "https://res.cloudinary.com/dqhnjdrl8/image/upload/c_thumb,w_64,h_64,g_auto/v1779795525/WhatsApp_Image_2026-05-25_at_17.03.30_1_th8cc3.jpg";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/favicon.ico") {
+        return Response.redirect(FAVICON_URL, 302);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
