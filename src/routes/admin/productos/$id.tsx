@@ -41,8 +41,14 @@ function EditProduct() {
           setSaving(true);
           try {
             await saveAdminProduct({ data: payload });
-            toast.success("Producto actualizado");
-            router.invalidate();
+            await router.invalidate();
+            if (!payload.is_active) {
+              toast.warning(
+                "Cambios guardados. El producto esta INACTIVO y no se ve en el catalogo publico.",
+              );
+            } else {
+              toast.success("Producto actualizado");
+            }
           } catch (error) {
             toast.error(formatAdminError(error, "No se pudo actualizar el producto."));
           } finally {

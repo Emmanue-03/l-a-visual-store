@@ -187,11 +187,32 @@ export function ProductForm({ product, categories, onSubmit, submitting }: Produ
           <Field label="Imagen principal URL" name="image_url" type="url" defaultValue={product?.image_url} required />
           <Textarea label="Galeria URLs" name="gallery_urls" defaultValue={(product?.gallery_urls ?? []).join("\n")} />
           <Field label="Orden" name="sort_order" type="number" defaultValue={product?.sort_order ?? 0} />
-          <Checkbox label="Activo" name="is_active" defaultChecked={product?.is_active ?? true} />
-          <Checkbox label="Destacado" name="is_featured" defaultChecked={product?.is_featured ?? false} />
+        </section>
+
+        <section className="space-y-3 rounded-xl border-2 border-emerald-200 bg-emerald-50/50 p-5">
+          <div>
+            <h3 className="font-display text-sm font-bold text-emerald-900">Publicacion</h3>
+            <p className="mt-0.5 text-xs text-emerald-800/80">
+              Controla si el producto se muestra en el catalogo publico.
+            </p>
+          </div>
+          <Checkbox
+            label="Activo (visible en el catalogo)"
+            name="is_active"
+            defaultChecked={product?.is_active ?? true}
+          />
+          <p className="text-[11px] leading-snug text-emerald-800/70">
+            Si destildas «Activo», el producto queda guardado pero <strong>no</strong> aparece en el catalogo publico ni en la home. Util para borrador o pausar sin borrar.
+          </p>
+        </section>
+
+        <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-5">
+          <h3 className="font-display text-sm font-bold text-brand-deep">Etiquetas de marketing</h3>
+          <Checkbox label="Destacado (home y secciones featured)" name="is_featured" defaultChecked={product?.is_featured ?? false} />
           <Checkbox label="Top venta" name="is_best_seller" defaultChecked={product?.is_best_seller ?? false} />
           <Checkbox label="Nuevo ingreso" name="is_new_arrival" defaultChecked={product?.is_new_arrival ?? false} />
         </section>
+
         <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
           <Field label="SEO title" name="seo_title" defaultValue={product?.seo_title ?? ""} />
           <Textarea label="SEO description" name="seo_description" defaultValue={product?.seo_description ?? ""} />
