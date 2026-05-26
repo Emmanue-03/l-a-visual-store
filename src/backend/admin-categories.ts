@@ -4,7 +4,11 @@ import type { Category } from "@/lib/catalog-types";
 import { requireAdminUser } from "./admin-auth";
 import { restInsert, restSelect, restUpdate } from "./supabase-rest";
 
-const nullableText = z.string().trim().optional().transform((value) => value || null);
+const nullableText = z
+  .string()
+  .trim()
+  .nullish()
+  .transform((value) => (typeof value === "string" && value ? value : null));
 
 const categorySchema = z.object({
   id: z.string().uuid().optional(),

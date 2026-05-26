@@ -5,7 +5,13 @@ import type { Category } from "@/lib/catalog-types";
 import { requireAdminUser } from "./admin-auth";
 import { restInsert, restSelect, restUpdate } from "./supabase-rest";
 
-const nullableText = z.string().trim().optional().transform((value) => value || null);
+// nullish() acepta string | null | undefined — el form envía null para campos vacios
+// (SKU, SEO title/description, etc.). Con .optional() solo, zod rechazaba el null.
+const nullableText = z
+  .string()
+  .trim()
+  .nullish()
+  .transform((value) => (typeof value === "string" && value ? value : null));
 const textList = z.array(z.string()).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
 
 const productSchema = z.object({

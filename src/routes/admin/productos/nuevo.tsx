@@ -6,6 +6,7 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { getCurrentAdmin } from "@/backend/admin-auth";
 import { listAdminCategories } from "@/backend/admin-categories";
 import { saveAdminProduct } from "@/backend/admin-products";
+import { formatAdminError } from "@/lib/error-format";
 
 export const Route = createFileRoute("/admin/productos/nuevo")({
   loader: async () => {
@@ -38,9 +39,7 @@ function NewProduct() {
             toast.success("Producto creado");
             navigate({ to: "/admin/productos/$id", params: { id: product?.id ?? "" } });
           } catch (error) {
-            const message =
-              error instanceof Error ? error.message : "No se pudo guardar el producto.";
-            toast.error(message);
+            toast.error(formatAdminError(error, "No se pudo guardar el producto."));
           } finally {
             setSaving(false);
           }

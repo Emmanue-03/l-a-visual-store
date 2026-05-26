@@ -6,6 +6,7 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { getCurrentAdmin } from "@/backend/admin-auth";
 import { listAdminCategories } from "@/backend/admin-categories";
 import { getAdminProduct, saveAdminProduct } from "@/backend/admin-products";
+import { formatAdminError } from "@/lib/error-format";
 
 export const Route = createFileRoute("/admin/productos/$id")({
   loader: async ({ params }) => {
@@ -43,9 +44,7 @@ function EditProduct() {
             toast.success("Producto actualizado");
             router.invalidate();
           } catch (error) {
-            const message =
-              error instanceof Error ? error.message : "No se pudo actualizar el producto.";
-            toast.error(message);
+            toast.error(formatAdminError(error, "No se pudo actualizar el producto."));
           } finally {
             setSaving(false);
           }
