@@ -60,19 +60,33 @@ export function BestSellers({ items }: { items?: Product[] }) {
 
   const displayItems = items ?? products.filter((p) => p.badge === "Top venta" || p.rating >= 4.7);
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
-      <div className="mb-8 flex items-end justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand-royal">
+    <section className="relative mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
+      <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-brand-royal/15 to-transparent lg:inset-x-8" />
+      <div className="mb-10 flex items-end justify-between gap-4">
+        <div className="max-w-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand-royal/15 bg-brand-soft px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-royal">
             <TrendingUp className="h-3.5 w-3.5" /> Más elegidos
           </div>
-          <h2 className="mt-3 font-display text-3xl font-bold text-brand-deep sm:text-4xl">Lo más elegido por nuestros clientes</h2>
+          <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-brand-deep sm:text-4xl lg:text-5xl">
+            Lo más elegido por <span className="text-gradient-royal">nuestros clientes</span>
+          </h2>
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            Lo que vuela de las góndolas — bestsellers verificados.
+          </p>
         </div>
-        <div className="hidden sm:flex gap-2">
-          <button onClick={() => scroll(-1)} aria-label="Anterior" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white hover:bg-brand-soft transition">
+        <div className="hidden gap-2 sm:flex">
+          <button
+            onClick={() => scroll(-1)}
+            aria-label="Anterior"
+            className="grid h-11 w-11 place-items-center rounded-full border border-brand-royal/15 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-royal/40 hover:bg-brand-soft hover:shadow-md"
+          >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <button onClick={() => scroll(1)} aria-label="Siguiente" className="grid h-10 w-10 place-items-center rounded-full bg-brand-royal text-white hover:opacity-90 transition">
+          <button
+            onClick={() => scroll(1)}
+            aria-label="Siguiente"
+            className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-brand-royal to-brand-deep text-white shadow-md shadow-brand-royal/30 transition hover:-translate-y-0.5 hover:shadow-lg btn-glow"
+          >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

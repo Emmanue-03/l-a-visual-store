@@ -139,9 +139,11 @@ export function ProductSearch({
     <div className={`relative ${className}`}>
       <form
         onSubmit={submitSearch}
-        className="flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 shadow-sm transition focus-within:border-brand-royal focus-within:shadow-md"
+        className="flex items-center gap-2 rounded-full border border-brand-royal/10 bg-white/95 px-3 py-2 shadow-sm shadow-brand-night/5 transition focus-within:border-brand-royal/50 focus-within:bg-white focus-within:shadow-lg focus-within:shadow-brand-royal/10"
       >
-        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand-royal">
+          <Search className="h-3.5 w-3.5" />
+        </span>
         <input
           ref={inputRef}
           value={query}
@@ -171,14 +173,14 @@ export function ProductSearch({
             setQuery(event.currentTarget.value);
           }}
           placeholder="Buscar productos..."
-          className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          className="w-full min-w-0 bg-transparent text-sm font-medium text-brand-deep outline-none placeholder:text-muted-foreground"
         />
         {query && (
           <button
             type="button"
             onClick={() => setQuery("")}
             aria-label="Limpiar busqueda"
-            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-brand-soft hover:text-brand-deep"
+            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-brand-soft hover:text-brand-deep"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -188,10 +190,10 @@ export function ProductSearch({
       {isOpen && (
         <div
           onMouseDown={(event) => event.preventDefault()}
-          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl"
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-brand-royal/10 bg-white/95 shadow-2xl shadow-brand-night/15 backdrop-blur"
         >
           <div className="max-h-[70vh] overflow-y-auto p-2">
-            <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-muted">
               {term ? "Resultados sugeridos" : "Mas buscados"}
             </div>
 
@@ -203,12 +205,12 @@ export function ProductSearch({
                     to="/producto/$id"
                     params={{ id: productRouteId(product) }}
                     onClick={close}
-                    className="grid grid-cols-[44px_1fr_auto] items-center gap-3 rounded-xl p-2 text-left transition hover:bg-brand-soft"
+                    className="grid grid-cols-[44px_1fr_auto] items-center gap-3 rounded-xl p-2 text-left transition hover:bg-brand-soft hover:shadow-sm"
                   >
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="h-11 w-11 rounded-lg object-cover"
+                      className="h-11 w-11 rounded-xl object-cover ring-1 ring-brand-royal/10"
                     />
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-brand-deep">
@@ -223,19 +225,19 @@ export function ProductSearch({
                         )}
                       </span>
                     </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    <ArrowRight className="h-4 w-4 text-brand-royal/60" />
                   </Link>
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
+              <div className="rounded-xl border border-dashed border-brand-royal/20 bg-brand-soft/40 px-3 py-4 text-sm text-muted-foreground">
                 No encontramos coincidencias. Probá con otra palabra.
               </div>
             )}
 
             {categoryMatches.length > 0 && (
               <div className="mt-2 border-t border-border pt-2">
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-muted">
                   Categorias
                 </div>
                 <div className="flex flex-wrap gap-2 px-2 pb-2">
@@ -245,7 +247,7 @@ export function ProductSearch({
                       to="/catalogo"
                       search={{ categoria: category.slug }}
                       onClick={close}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-brand-deep hover:border-brand-royal hover:bg-brand-soft hover:text-brand-royal"
+                      className="inline-flex items-center gap-1 rounded-full border border-brand-royal/10 bg-white px-3 py-1.5 text-xs font-semibold text-brand-deep transition hover:border-brand-royal/40 hover:bg-brand-soft hover:text-brand-royal"
                     >
                       <Sparkles className="h-3 w-3" />
                       {category.name}
@@ -258,7 +260,7 @@ export function ProductSearch({
             <button
               type="button"
               onClick={() => submitSearch()}
-              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-royal px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-royal to-brand-deep px-3 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-royal/20 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-royal/25"
             >
               Ver todos los resultados
               <ArrowRight className="h-4 w-4" />

@@ -17,11 +17,11 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
         className={`fixed inset-0 z-[60] bg-brand-night/60 backdrop-blur-sm transition-opacity ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       />
       <aside
-        className={`fixed right-0 top-0 z-[70] h-full w-full max-w-md bg-white shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"} flex flex-col`}
+        className={`fixed right-0 top-0 z-[70] h-full w-full max-w-md border-l border-brand-royal/10 bg-white shadow-2xl shadow-brand-night/20 transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"} flex flex-col`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex items-center justify-between border-b border-brand-royal/10 bg-gradient-to-r from-white via-brand-soft/60 to-white px-5 py-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-brand-royal text-white">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-brand-royal to-brand-night text-white shadow-lg shadow-brand-royal/20">
               <ShoppingBag className="h-4 w-4" />
             </div>
             <div>
@@ -29,7 +29,7 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
               <div className="text-xs text-muted-foreground">{items.length} producto(s)</div>
             </div>
           </div>
-          <button onClick={close} aria-label="Cerrar" className="grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-brand-soft transition">
+          <button onClick={close} aria-label="Cerrar" className="grid h-9 w-9 place-items-center rounded-full border border-brand-royal/10 bg-white hover:bg-brand-soft transition">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -49,8 +49,8 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
           )}
 
           {items.map(({ product, qty }) => (
-            <div key={product.id} className="flex gap-3 rounded-2xl border border-border p-3 animate-fade-up">
-              <img src={product.image} alt={product.name} className="h-20 w-20 rounded-xl object-cover" />
+            <div key={product.id} className="premium-panel flex gap-3 rounded-2xl p-3 animate-fade-up">
+              <img src={product.image} alt={product.name} className="h-20 w-20 rounded-xl object-cover ring-1 ring-brand-royal/10" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="line-clamp-2 text-sm font-semibold text-brand-deep">{product.name}</h4>
@@ -59,10 +59,10 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
                   </button>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
-                  <div className="flex items-center rounded-full border border-border">
-                    <button onClick={() => setQty(product.id, qty - 1)} className="grid h-7 w-7 place-items-center text-brand-deep hover:bg-brand-soft rounded-l-full"><Minus className="h-3 w-3" /></button>
+                  <div className="flex items-center rounded-full border border-brand-royal/10 bg-brand-soft/60">
+                    <button onClick={() => setQty(product.id, qty - 1)} className="grid h-7 w-7 place-items-center text-brand-deep hover:bg-white rounded-l-full"><Minus className="h-3 w-3" /></button>
                     <span className="w-7 text-center text-sm font-semibold">{qty}</span>
-                    <button onClick={() => setQty(product.id, qty + 1)} className="grid h-7 w-7 place-items-center text-brand-deep hover:bg-brand-soft rounded-r-full"><Plus className="h-3 w-3" /></button>
+                    <button onClick={() => setQty(product.id, qty + 1)} className="grid h-7 w-7 place-items-center text-brand-deep hover:bg-white rounded-r-full"><Plus className="h-3 w-3" /></button>
                   </div>
                   <div className="font-display text-sm font-bold text-brand-royal">{formatPrice(product.price * qty)}</div>
                 </div>
@@ -72,7 +72,7 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-border bg-brand-soft/40 p-5 space-y-3">
+          <div className="border-t border-brand-royal/10 bg-gradient-to-b from-brand-soft/50 to-white p-5 space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-semibold">{formatPrice(total)}</span>
@@ -81,7 +81,7 @@ export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
               <span className="font-display font-bold text-brand-deep">Total</span>
               <span className="font-display text-xl font-bold text-brand-royal">{formatPrice(total)}</span>
             </div>
-            <a href={checkoutUrl} target="_blank" rel="noreferrer" onClick={close} className="flex items-center justify-center gap-2 rounded-xl bg-brand-royal px-4 py-3 font-semibold text-white btn-glow hover:opacity-90">
+            <a href={checkoutUrl} target="_blank" rel="noreferrer" onClick={close} className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-royal to-brand-deep px-4 py-3 font-bold text-white btn-glow transition hover:-translate-y-0.5 hover:shadow-lg">
               Finalizar compra <ArrowRight className="h-4 w-4" />
             </a>
             <p className="text-center text-[11px] text-muted-foreground">

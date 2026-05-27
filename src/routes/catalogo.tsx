@@ -103,16 +103,20 @@ function CatalogPage() {
   return (
     <div>
       {/* Header */}
-      <div className="relative overflow-hidden bg-brand-radial text-white">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10 dots-ring text-white/30 animate-spin-slow" />
+      <div className="brand-ambient relative overflow-hidden text-white">
+        <div className="pointer-events-none absolute inset-0 grid-pattern opacity-30" />
+        <div className="pointer-events-none absolute -left-20 top-10 h-36 w-[36rem] -rotate-6 bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-[-10rem] bottom-0 h-40 w-[38rem] rotate-6 bg-brand-royal/40 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 lg:px-8 py-14">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-200">Catálogo</p>
-          <h1 className="mt-2 font-display text-4xl font-bold sm:text-5xl">Catálogo de productos</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-gold">Catálogo</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold sm:text-5xl">Catálogo de productos</h1>
           <p className="mt-2 max-w-xl text-white/70">Filtrá, ordená y encontrá lo que necesitás en segundos.</p>
-          <div className="mt-6 flex items-center gap-2 rounded-full bg-white p-2 max-w-2xl shadow-xl">
-            <Search className="ml-3 h-4 w-4 text-muted-foreground" />
+          <div className="mt-6 flex max-w-2xl items-center gap-2 rounded-full border border-white/20 bg-white p-2 shadow-2xl shadow-black/15">
+            <span className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-brand-soft text-brand-royal">
+              <Search className="h-4 w-4" />
+            </span>
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar productos..." className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-            <button className="rounded-full bg-brand-royal px-5 py-2 text-sm font-semibold text-white">Buscar</button>
+            <button className="rounded-full bg-gradient-to-br from-brand-royal to-brand-deep px-5 py-2 text-sm font-bold text-white shadow-md shadow-brand-royal/20">Buscar</button>
           </div>
         </div>
       </div>
@@ -140,10 +144,10 @@ function CatalogPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10 grid gap-8 lg:grid-cols-[260px_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[280px_1fr] lg:px-8">
         {/* Sidebar filters */}
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="premium-panel rounded-2xl p-5 lg:sticky lg:top-24">
             <div className="flex items-center gap-2 mb-3">
               <SlidersHorizontal className="h-4 w-4 text-brand-royal" />
               <h3 className="font-display font-bold text-brand-deep">Filtros</h3>
@@ -151,7 +155,7 @@ function CatalogPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Categoría</p>
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => setCat("todas")} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${cat === "todas" ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}>
+                <button onClick={() => setCat("todas")} className={`rounded-full px-3 py-1.5 text-xs font-bold border transition ${cat === "todas" ? "bg-brand-royal text-white border-brand-royal shadow-md shadow-brand-royal/20" : "border-brand-royal/10 bg-white hover:bg-brand-soft hover:text-brand-royal"}`}>
                   Todas ({products.length})
                 </button>
                 {categories.map((c) => {
@@ -161,7 +165,7 @@ function CatalogPage() {
                     <button
                       key={slug}
                       onClick={() => setCat(slug)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${normSlug(cat) === slug ? "bg-brand-royal text-white border-brand-royal" : "border-border hover:bg-brand-soft"}`}
+                      className={`rounded-full px-3 py-1.5 text-xs font-bold border transition ${normSlug(cat) === slug ? "bg-brand-royal text-white border-brand-royal shadow-md shadow-brand-royal/20" : "border-brand-royal/10 bg-white hover:bg-brand-soft hover:text-brand-royal"}`}
                     >
                       {c.name} ({count})
                     </button>
@@ -177,7 +181,7 @@ function CatalogPage() {
             <p className="text-sm text-muted-foreground">{filtered.length} productos encontrados</p>
             <div className="flex items-center gap-2">
               <label className="text-xs text-muted-foreground">Ordenar:</label>
-              <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="rounded-full border border-border bg-white px-3 py-1.5 text-sm font-semibold text-brand-deep">
+              <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="rounded-full border border-brand-royal/10 bg-white px-3 py-1.5 text-sm font-semibold text-brand-deep shadow-sm outline-none focus:border-brand-royal/40">
                 <option value="destacados">Destacados</option>
                 <option value="menor">Menor precio</option>
                 <option value="mayor">Mayor precio</option>
@@ -186,11 +190,11 @@ function CatalogPage() {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
             {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
           {filtered.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
+            <div className="premium-panel rounded-2xl border-dashed p-12 text-center text-muted-foreground">
               No encontramos productos con esos filtros.
             </div>
           )}
@@ -199,4 +203,3 @@ function CatalogPage() {
     </div>
   );
 }
-

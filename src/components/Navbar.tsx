@@ -33,23 +33,23 @@ export function Navbar({
   }, [location]);
 
   return (
-    <header
-      className="sticky top-0 z-50 bg-white shadow-[0_4px_30px_-12px_rgba(8,20,46,0.15)]"
-    >
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
-        <Link to="/" className="flex items-center gap-3">
-          <Logo className="h-11 w-11" />
+    <header className="nav-shell sticky top-0 z-50">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:px-8">
+        <Link to="/" className="group flex shrink-0 items-center gap-3 rounded-full pr-2 focus-premium">
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-white shadow-md shadow-brand-night/10 ring-1 ring-brand-royal/10 transition group-hover:scale-[1.03] group-hover:ring-brand-gold/60">
+            <Logo className="h-10 w-10" />
+          </span>
           <div className="hidden sm:block leading-tight">
             <div className="font-display text-base font-bold text-brand-deep">L&A</div>
-            <div className="text-[10px] font-semibold tracking-[0.25em] text-brand-royal">MULTIVENTAS</div>
+            <div className="text-[10px] font-semibold tracking-[0.28em] text-brand-royal">MULTIVENTAS</div>
           </div>
         </Link>
 
         <nav className="hidden shrink-0 lg:flex items-center gap-1 ml-4">
           <Link
             to="/"
-            className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
-            activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+            className="nav-link-premium rounded-full px-4 py-2 text-sm font-semibold text-foreground/75 transition hover:bg-white hover:text-brand-royal hover:shadow-sm"
+            activeProps={{ className: "text-brand-royal bg-white shadow-sm" }}
             activeOptions={{ exact: true }}
           >
             Inicio
@@ -62,15 +62,15 @@ export function Navbar({
           >
             <Link
               to="/catalogo"
-              className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
-              activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+              className="nav-link-premium inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold text-foreground/75 transition hover:bg-white hover:text-brand-royal hover:shadow-sm"
+              activeProps={{ className: "text-brand-royal bg-white shadow-sm" }}
               onClick={() => setCategoriesOpen(false)}
             >
               Categorías
               <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
             </Link>
             <div
-              className={`absolute left-0 top-full z-50 min-w-56 rounded-xl border border-border bg-white p-2 shadow-xl transition-all ${
+              className={`absolute left-0 top-full z-50 min-w-64 rounded-2xl border border-brand-royal/10 bg-white/95 p-2 shadow-2xl shadow-brand-night/10 backdrop-blur transition-all ${
                 categoriesOpen
                   ? "visible translate-y-1 opacity-100"
                   : "invisible translate-y-2 opacity-0"
@@ -82,7 +82,7 @@ export function Navbar({
                   to="/catalogo"
                   search={{ categoria: category.slug }}
                   onClick={() => setCategoriesOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-brand-soft hover:text-brand-royal"
+                  className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground/75 transition hover:bg-brand-soft hover:text-brand-royal"
                 >
                   {category.name}
                 </Link>
@@ -92,8 +92,8 @@ export function Navbar({
 
           <Link
             to="/contacto"
-            className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-brand-royal hover:bg-brand-soft transition"
-            activeProps={{ className: "text-brand-royal bg-brand-soft" }}
+            className="nav-link-premium rounded-full px-4 py-2 text-sm font-semibold text-foreground/75 transition hover:bg-white hover:text-brand-royal hover:shadow-sm"
+            activeProps={{ className: "text-brand-royal bg-white shadow-sm" }}
           >
             Contacto
           </Link>
@@ -109,7 +109,7 @@ export function Navbar({
           <a
             href={whatsappUrl}
             target="_blank" rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-600 transition"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3.5 py-2 text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-emerald-500/40 focus-premium"
           >
             <MessageCircle className="h-4 w-4" />
             <span className="hidden md:inline">WhatsApp</span>
@@ -118,11 +118,11 @@ export function Navbar({
           <button
             onClick={openCart}
             aria-label="Abrir carrito"
-            className="relative grid h-10 w-10 place-items-center rounded-full bg-brand-royal text-white shadow-md hover:opacity-90 transition"
+            className="relative grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-brand-royal to-brand-night text-white shadow-lg shadow-brand-royal/25 transition hover:-translate-y-0.5 hover:shadow-brand-royal/40 focus-premium"
           >
             <ShoppingCart className="h-4 w-4" />
             {count > 0 && (
-              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-white text-[10px] font-bold text-brand-royal ring-2 ring-brand-royal animate-pulse-glow">
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand-gold text-[10px] font-black text-brand-night ring-2 ring-white animate-pulse-glow">
                 {count}
               </span>
             )}
@@ -131,7 +131,7 @@ export function Navbar({
           <button
             onClick={() => setOpen((s) => !s)}
             aria-label="Menú"
-            className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white lg:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full border border-brand-royal/10 bg-white text-brand-deep shadow-sm transition hover:bg-brand-soft lg:hidden focus-premium"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -139,7 +139,7 @@ export function Navbar({
       </div>
 
       {open && (
-        <div className="lg:hidden glass border-t border-border animate-fade-up">
+        <div className="lg:hidden border-t border-brand-royal/10 bg-white/95 shadow-2xl shadow-brand-night/10 backdrop-blur animate-fade-up">
           <div className="mx-auto max-w-7xl space-y-1 px-4 py-3">
             <ProductSearch
               className="mb-2"
@@ -150,14 +150,14 @@ export function Navbar({
             />
             <Link
               to="/"
-              className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground hover:bg-brand-soft hover:text-brand-royal"
+              className="block rounded-xl px-4 py-3 text-sm font-semibold text-foreground hover:bg-brand-soft hover:text-brand-royal"
             >
               Inicio
             </Link>
-            <div className="rounded-xl border border-border bg-white/80 p-2">
+            <div className="rounded-2xl border border-brand-royal/10 bg-white p-2 shadow-sm">
               <Link
                 to="/catalogo"
-                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-brand-deep hover:bg-brand-soft hover:text-brand-royal"
+                className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-bold text-brand-deep hover:bg-brand-soft hover:text-brand-royal"
               >
                 Categorías
                 <ChevronDown className="h-4 w-4" />
@@ -169,7 +169,7 @@ export function Navbar({
                     to="/catalogo"
                     search={{ categoria: category.slug }}
                     onClick={() => setOpen(false)}
-                    className="block rounded-lg px-5 py-2 text-sm font-medium text-foreground/80 hover:bg-brand-soft hover:text-brand-royal"
+                    className="block rounded-xl px-5 py-2 text-sm font-medium text-foreground/80 hover:bg-brand-soft hover:text-brand-royal"
                   >
                     {category.name}
                   </Link>
@@ -178,7 +178,7 @@ export function Navbar({
             </div>
             <Link
               to="/contacto"
-              className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground hover:bg-brand-soft hover:text-brand-royal"
+              className="block rounded-xl px-4 py-3 text-sm font-semibold text-foreground hover:bg-brand-soft hover:text-brand-royal"
             >
               Contacto
             </Link>
