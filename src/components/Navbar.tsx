@@ -1,15 +1,6 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import {
-  ArrowRight,
-  Grid2x2,
-  Heart,
-  Menu,
-  Search,
-  ShoppingCart,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Grid2x2, Heart, Menu, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { useCart } from "@/lib/cart-context";
 import { categories as fallbackCategories } from "@/lib/mock-data";
@@ -29,10 +20,7 @@ export function Navbar({
 }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [query, setQuery] = useState("");
-  const navigate = useNavigate();
   const location = useRouterState({ select: (s) => s.location.href });
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { count, open: openCart } = useCart();
 
   const productCategories = categories.filter(
@@ -50,24 +38,6 @@ export function Navbar({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ⌘K / Ctrl+K para enfocar la búsqueda
-  useEffect(() => {
-    const handler = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-
-  const submitSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    const trimmed = query.trim();
-    navigate({ to: "/catalogo", search: trimmed ? { q: trimmed } : undefined });
-  };
-
   return (
     <header
       className={cn(
@@ -77,7 +47,7 @@ export function Navbar({
           : "bg-[rgba(251,250,247,0.78)] border-b border-transparent backdrop-blur",
       )}
     >
-      <div className="mx-auto grid h-[84px] max-w-[1240px] grid-cols-[auto_1fr_auto] items-center gap-5 px-4 sm:px-7 lg:gap-7">
+      <div className="mx-auto flex h-[84px] max-w-[1240px] items-center justify-between gap-5 px-4 sm:px-7 lg:gap-7">
         {/* Brand */}
         <Link to="/" className="flex shrink-0 items-center gap-3 focus-premium">
           <span className="grid h-[46px] w-[46px] place-items-center overflow-hidden rounded-full bg-white shadow-[0_8px_22px_-10px_rgba(31,61,224,0.55)] ring-1 ring-white/40">
@@ -92,36 +62,6 @@ export function Navbar({
             </span>
           </span>
         </Link>
-
-        {/* Search pill */}
-        <form
-          onSubmit={submitSearch}
-          className={cn(
-            "mx-auto hidden h-[52px] w-full max-w-[620px] items-center gap-2 rounded-full border bg-white pl-5 pr-2 transition md:flex",
-            "border-brand-soft shadow-[0_1px_0_rgba(16,38,82,.03)]",
-            "focus-within:border-brand-royal focus-within:shadow-[0_0_0_4px_rgba(31,61,224,.12)]",
-          )}
-          role="search"
-        >
-          <Search className="h-[18px] w-[18px] shrink-0 text-brand-muted" />
-          <input
-            ref={searchInputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Busca productos, marcas, categorías…"
-            className="min-w-0 flex-1 bg-transparent text-[15px] text-brand-deep outline-none placeholder:text-brand-muted"
-          />
-          <kbd className="mr-1.5 hidden rounded-md border border-brand-soft bg-[var(--paper-2,#F4F2EC)] px-[7px] py-[2px] font-mono text-[11px] text-brand-muted lg:inline-flex">
-            ⌘ K
-          </kbd>
-          <button
-            type="submit"
-            aria-label="Buscar"
-            className="grid h-[38px] w-[38px] place-items-center rounded-full bg-brand-deep text-white transition hover:rotate-[-6deg] hover:scale-105 hover:bg-brand-royal"
-          >
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </form>
 
         {/* Tools */}
         <div className="flex items-center gap-2 lg:gap-2.5">
@@ -197,32 +137,10 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Search mobile + menú mobile */}
+      {/* Menú mobile */}
       {open && (
         <div className="border-t border-brand-soft bg-white shadow-xl animate-fade-up lg:hidden">
           <div className="mx-auto max-w-[1240px] space-y-2 px-4 py-3">
-            <form
-              onSubmit={(e) => {
-                submitSearch(e);
-                setOpen(false);
-              }}
-              className="flex h-11 items-center gap-2 rounded-full border border-brand-soft bg-white pl-4 pr-1"
-            >
-              <Search className="h-4 w-4 text-brand-muted" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar productos…"
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-              />
-              <button
-                type="submit"
-                className="grid h-8 w-8 place-items-center rounded-full bg-brand-deep text-white"
-                aria-label="Buscar"
-              >
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </form>
             <Link
               to="/"
               className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-brand-deep hover:bg-brand-soft"
