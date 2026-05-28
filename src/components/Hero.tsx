@@ -64,7 +64,7 @@ export function Hero() {
       />
 
       <div className="mx-auto max-w-[1240px] px-4 sm:px-7">
-        <div className="grid items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14 lg:py-[88px]">
+        <div className="grid items-center gap-12 pb-20 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14 lg:pb-[88px] lg:pt-12">
           {/* Left: copy */}
           <div className="la-anim-up">
             <div className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-white/85 backdrop-blur sm:text-[12px] sm:tracking-[0.14em]">
