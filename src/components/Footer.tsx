@@ -143,6 +143,17 @@ export function Footer() {
           <span>
             © {new Date().getFullYear()} L&amp;A Multiventas · Todos los derechos reservados
           </span>
+          <a
+            href="https://neura.com.py"
+            target="_blank"
+            rel="noreferrer"
+            className="order-3 inline-flex w-full items-center justify-center gap-1.5 text-[11.5px] text-white/55 transition hover:text-brand-gold sm:order-none sm:w-auto"
+          >
+            Desarrollado por{" "}
+            <span className="font-display font-bold tracking-[0.04em] text-brand-gold-soft">
+              Neura
+            </span>
+          </a>
           <div className="flex flex-wrap items-center gap-1.5">
             {PAYMENTS.map((p) => (
               <span
