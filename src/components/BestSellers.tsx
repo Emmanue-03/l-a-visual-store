@@ -1,53 +1,22 @@
-import { useEffect, useRef, type MouseEvent } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { products } from "@/lib/mock-data";
 import type { Product } from "@/lib/catalog-types";
 import { ProductCard } from "./ProductCard";
 import { SectionHead } from "./SectionHead";
 
 export function BestSellers({ items }: { items?: Product[] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<number | null>(null);
-  const directionRef = useRef(0);
-  const scroll = (d: number) => {
-    ref.current?.scrollBy({ left: d * 320, behavior: "smooth" });
-  };
-  const stopEdgeScroll = () => {
-    directionRef.current = 0;
-    if (frameRef.current !== null) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
-  };
-  const startEdgeScroll = (direction: number) => {
-    directionRef.current = direction;
-    if (frameRef.current !== null) return;
+  const displayItems =
+    items ?? products.filter((p) => p.badge === "Top venta" || p.rating >= 4.7);
 
-    const tick = () => {
-      if (!ref.current || directionRef.current === 0) {
-        frameRef.current = null;
-        return;
-      }
-      ref.current.scrollBy({ left: directionRef.current * 9 });
-      frameRef.current = requestAnimationFrame(tick);
-    };
-    frameRef.current = requestAnimationFrame(tick);
-  };
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const edgeSize = Math.min(120, el.clientWidth * 0.18);
-    const { left, right } = el.getBoundingClientRect();
-    const canScrollLeft = el.scrollLeft > 0;
-    const canScrollRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
-    if (event.clientX - left < edgeSize && canScrollLeft) { startEdgeScroll(-1); return; }
-    if (right - event.clientX < edgeSize && canScrollRight) { startEdgeScroll(1); return; }
-    stopEdgeScroll();
-  };
-
-  useEffect(() => stopEdgeScroll, []);
-
-  const displayItems = items ?? products.filter((p) => p.badge === "Top venta" || p.rating >= 4.7);
+  // Para que el loop visual no quede vacío con pocos items, repetimos la lista
+  // hasta llegar a ~6 cards. Estas repeticiones son interactivas igual: cada
+  // ProductCard tiene su propio state local y add() del cart deduplica por id.
+  const MIN_FOR_LOOP = 6;
+  const padded =
+    displayItems.length === 0
+      ? []
+      : Array.from({
+          length: Math.max(1, Math.ceil(MIN_FOR_LOOP / displayItems.length)),
+        }).flatMap(() => displayItems);
 
   return (
     <section className="relative mx-auto max-w-[1240px] px-4 py-14 sm:px-7 lg:py-20">
@@ -63,37 +32,40 @@ export function BestSellers({ items }: { items?: Product[] }) {
         ctaTo="/catalogo"
       />
 
-      <div className="relative mt-8">
-        <div className="absolute -right-1 -top-16 hidden gap-2 sm:flex">
-          <button
-            onClick={() => scroll(-1)}
-            aria-label="Anterior"
-            className="grid h-11 w-11 place-items-center rounded-full border border-brand-soft bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-royal hover:bg-brand-soft"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => scroll(1)}
-            aria-label="Siguiente"
-            className="grid h-11 w-11 place-items-center rounded-full bg-brand-deep text-white shadow-md transition hover:-translate-y-0.5 hover:bg-brand-royal"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+      {displayItems.length === 0 ? (
+        <div className="mt-10 rounded-2xl border border-dashed border-brand-soft bg-white p-10 text-center text-brand-muted">
+          Aún no hay productos destacados.
         </div>
-
+      ) : (
         <div
-          ref={ref}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={stopEdgeScroll}
-          className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="la-marquee group relative mt-8"
+          aria-label="Carrusel de productos destacados"
         >
-          {displayItems.map((p) => (
-            <div key={p.id} className="w-[260px] flex-none snap-start">
-              <ProductCard product={p} />
-            </div>
-          ))}
+          {/* fades laterales para suavizar el loop */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-12 bg-gradient-to-r from-[var(--paper,#FBFAF7)] to-transparent sm:block" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-12 bg-gradient-to-l from-[var(--paper,#FBFAF7)] to-transparent sm:block" />
+
+          <div className="la-marquee-track flex gap-4 pb-4">
+            {padded.map((p, i) => (
+              <div key={`og-${p.id}-${i}`} className="w-[260px] flex-none">
+                <ProductCard product={p} />
+              </div>
+            ))}
+            {/* Duplicado visual para loop infinito; aria-hidden para no
+                duplicar lectura por screen readers. La interactividad del
+                ProductCard sigue funcionando (add al cart deduplica por id). */}
+            {padded.map((p, i) => (
+              <div
+                key={`dup-${p.id}-${i}`}
+                aria-hidden="true"
+                className="w-[260px] flex-none"
+              >
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

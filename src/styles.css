@@ -673,6 +673,38 @@
 .la-float-b { animation: la-float-x-b 18s ease-in-out infinite; }
 .la-anim-up { animation: fade-up 0.7s cubic-bezier(.2,.7,.2,1) both; }
 
+/* Marquee horizontal infinito para sección de productos.
+   - Mobile/touch: scroll horizontal nativo (sin animación).
+   - Desktop con hover: animación auto loop, pausa al hover.
+   - prefers-reduced-motion: sin animación. */
+@keyframes la-marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.la-marquee {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.la-marquee::-webkit-scrollbar { display: none; }
+.la-marquee-track {
+  width: max-content;
+  will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+  .la-marquee { overflow: hidden; }
+  .la-marquee-track {
+    animation: la-marquee-x 60s linear infinite;
+  }
+  .la-marquee:hover .la-marquee-track,
+  .la-marquee:focus-within .la-marquee-track {
+    animation-play-state: paused;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .la-marquee-track { animation: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .la-orbit, .la-rotate, .la-float-a, .la-float-b, .la-shimmer { animation: none; }
 }
