@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -6,6 +7,7 @@ import {
   CreditCard,
   Flame,
   Headphones,
+  Search,
   Sparkles,
   Star,
   Truck,
@@ -13,6 +15,15 @@ import {
 import { Logo } from "./Logo";
 
 export function Hero() {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = query.trim();
+    navigate({ to: "/catalogo", search: trimmed ? { q: trimmed } : undefined });
+  };
+
   return (
     <section className="relative isolate overflow-hidden text-white">
       {/* Background: navy radial */}
@@ -70,6 +81,30 @@ export function Hero() {
               <span className="text-white/40">·</span>
               <span>Atención por WhatsApp</span>
             </div>
+
+            {/* Buscador del hero — navega a /catalogo?q=... */}
+            <form
+              onSubmit={submitSearch}
+              role="search"
+              className="mt-6 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] pl-5 pr-1.5 backdrop-blur transition focus-within:border-brand-gold/60 focus-within:bg-white/[0.14] focus-within:shadow-[0_0_0_4px_rgba(212,162,76,.18)]"
+            >
+              <Search className="h-[18px] w-[18px] shrink-0 text-white/70" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar termos, Hoppies, perfumes, celulares…"
+                aria-label="Buscar productos"
+                className="min-w-0 flex-1 bg-transparent text-[14.5px] text-white outline-none placeholder:text-white/55 sm:text-[15px]"
+              />
+              <button
+                type="submit"
+                aria-label="Buscar"
+                className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[13.5px] font-bold text-[#0B1B3F] transition hover:bg-brand-gold-soft sm:px-5"
+              >
+                <span className="hidden sm:inline">Buscar</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
 
             <h1 className="mt-6 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
               Todo para vender,
