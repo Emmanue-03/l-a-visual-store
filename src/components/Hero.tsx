@@ -86,7 +86,7 @@ export function Hero() {
             <form
               onSubmit={submitSearch}
               role="search"
-              className="mt-7 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-brand-soft bg-white pl-5 pr-1.5 shadow-[0_18px_40px_-18px_rgba(11,27,63,.45),0_0_0_1px_rgba(212,162,76,.18)] transition focus-within:border-brand-gold/60 focus-within:shadow-[0_22px_44px_-18px_rgba(11,27,63,.55),0_0_0_4px_rgba(212,162,76,.22)] sm:mt-8"
+              className="mt-3 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-brand-soft bg-white pl-5 pr-1.5 shadow-[0_18px_40px_-18px_rgba(11,27,63,.45),0_0_0_1px_rgba(212,162,76,.18)] transition focus-within:border-brand-gold/60 focus-within:shadow-[0_22px_44px_-18px_rgba(11,27,63,.55),0_0_0_4px_rgba(212,162,76,.22)] sm:mt-4"
             >
               <Search className="h-[18px] w-[18px] shrink-0 text-brand-muted" />
               <input
