@@ -86,7 +86,7 @@ export function Hero() {
             <form
               onSubmit={submitSearch}
               role="search"
-              className="mt-4 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-brand-soft bg-white pl-5 pr-1.5 shadow-[0_18px_40px_-18px_rgba(11,27,63,.45),0_0_0_1px_rgba(212,162,76,.18)] transition focus-within:border-brand-gold/60 focus-within:shadow-[0_22px_44px_-18px_rgba(11,27,63,.55),0_0_0_4px_rgba(212,162,76,.22)]"
+              className="mt-7 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-brand-soft bg-white pl-5 pr-1.5 shadow-[0_18px_40px_-18px_rgba(11,27,63,.45),0_0_0_1px_rgba(212,162,76,.18)] transition focus-within:border-brand-gold/60 focus-within:shadow-[0_22px_44px_-18px_rgba(11,27,63,.55),0_0_0_4px_rgba(212,162,76,.22)] sm:mt-8"
             >
               <Search className="h-[18px] w-[18px] shrink-0 text-brand-muted" />
               <input
@@ -106,7 +106,7 @@ export function Hero() {
               </button>
             </form>
 
-            <h1 className="mt-10 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
+            <h1 className="mt-8 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance sm:mt-9">
               Todo para vender,
               <br />
               regalar y{" "}
