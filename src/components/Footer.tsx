@@ -1,8 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { FormEvent, useState } from "react";
-import { Facebook, Instagram, MessageCircle, Users } from "lucide-react";
 import { Logo } from "./Logo";
-import { TikTokIcon } from "./icons/TikTokIcon";
 import { CONTACT } from "@/lib/contact";
 
 const PAYMENTS = ["VISA", "MC", "AMEX", "MP", "TRANSF.", "EFECTIVO"];
@@ -68,14 +66,6 @@ export function Footer() {
               Suscribirme
             </button>
           </form>
-
-          <div className="mt-5 flex gap-2">
-            <SocialLink href={CONTACT.instagram} label="Instagram"><Instagram className="h-4 w-4" /></SocialLink>
-            <SocialLink href={CONTACT.tiktok} label="TikTok"><TikTokIcon className="h-4 w-4" /></SocialLink>
-            <SocialLink href={CONTACT.facebook} label="Facebook"><Facebook className="h-4 w-4" /></SocialLink>
-            <SocialLink href={CONTACT.fanpage} label="Fan page de Facebook"><Users className="h-4 w-4" /></SocialLink>
-            <SocialLink href={CONTACT.whatsappUrl} label="WhatsApp"><MessageCircle className="h-4 w-4" /></SocialLink>
-          </div>
         </div>
 
         <FooterCol
@@ -214,24 +204,3 @@ function ContactLink({
   );
 }
 
-function SocialLink({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={label}
-      className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/75 transition hover:-translate-y-0.5 hover:border-brand-gold/50 hover:bg-white/10 hover:text-white"
-    >
-      {children}
-    </a>
-  );
-}
