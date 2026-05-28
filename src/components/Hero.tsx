@@ -53,7 +53,7 @@ export function Hero() {
       />
 
       <div className="mx-auto max-w-[1240px] px-4 sm:px-7">
-        <div className="grid items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:py-[110px]">
+        <div className="grid items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14 lg:py-[88px]">
           {/* Left: copy */}
           <div className="la-anim-up">
             <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/85 backdrop-blur">
@@ -126,7 +126,7 @@ export function Hero() {
           </div>
 
           {/* Right: stage with orbits */}
-          <div className="relative mx-auto h-[440px] w-full max-w-[520px] lg:h-[540px]">
+          <div className="relative mx-auto h-[400px] w-full max-w-[520px] lg:mt-2 lg:h-[460px]">
             <div
               aria-hidden
               className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/[0.12] la-rotate"
