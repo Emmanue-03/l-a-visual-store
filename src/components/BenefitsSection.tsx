@@ -1,40 +1,74 @@
-import { Truck, MessageCircle, ShieldCheck, BadgeCheck, Smartphone } from "lucide-react";
+import { ArrowRight, MessageCircle, ShieldCheck, Truck, Users } from "lucide-react";
+import { SectionHead } from "./SectionHead";
 
 const items = [
-  { icon: Truck, title: "Envíos rápidos", desc: "Coordinamos al toque tu entrega." },
-  { icon: MessageCircle, title: "Atención por WhatsApp", desc: "Resolvemos consultas en minutos." },
-  { icon: ShieldCheck, title: "Pagos seguros", desc: "Tus datos y tu compra protegidos." },
-  { icon: BadgeCheck, title: "Productos seleccionados", desc: "Calidad y precio garantizados." },
-  { icon: Smartphone, title: "Comprá desde tu celular", desc: "Diseño rápido, simple y mobile first." },
+  {
+    icon: ShieldCheck,
+    title: "Compra 100% segura",
+    desc: "Mercado Pago, transferencia o efectivo. Datos protegidos y proceso verificado de principio a fin.",
+    cta: "Saber más",
+    tone: "blue" as const,
+  },
+  {
+    icon: MessageCircle,
+    title: "Atención por WhatsApp",
+    desc: "Respondemos en minutos. Te asesoramos antes de comprar y coordinamos el envío en tiempo real.",
+    cta: "Escribinos",
+    tone: "green" as const,
+  },
+  {
+    icon: Truck,
+    title: "Envíos rápidos",
+    desc: "Despacho en 24/48 hs y entrega a todo el país. Coordinamos retiro o envío según prefieras.",
+    cta: "Cómo enviamos",
+    tone: "gold" as const,
+  },
+  {
+    icon: Users,
+    title: "Soporte cercano",
+    desc: "Equipo real respondiendo dudas. Si algo sale mal, lo resolvemos. Atención post-venta sin excusas.",
+    cta: "Conocenos",
+    tone: "blue" as const,
+  },
 ];
+
+const toneClasses: Record<"blue" | "green" | "gold", string> = {
+  blue: "bg-brand-soft text-brand-royal ring-brand-royal/15",
+  green: "bg-emerald-50 text-emerald-600 ring-emerald-200",
+  gold: "bg-brand-gold-soft/40 text-brand-gold ring-brand-gold/30",
+};
 
 export function BenefitsSection() {
   return (
-    <section className="relative mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-24">
-      <div className="mx-auto mb-12 max-w-2xl text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-brand-royal/15 bg-brand-soft px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-royal">
-          Por qué elegirnos
-        </div>
-        <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-brand-deep sm:text-4xl lg:text-5xl">
-          Fácil, rápido y <span className="text-gradient-royal">seguro</span>
-        </h2>
-        <p className="mt-3 text-muted-foreground">
-          Diseñamos cada paso de tu experiencia para que compres con total confianza.
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+    <section className="relative mx-auto max-w-[1240px] px-4 py-14 sm:px-7 lg:py-20">
+      <SectionHead
+        kicker="¿Por qué L&A?"
+        title={
+          <>
+            Una compra <span className="text-brand-gold">cuidada de principio a fin</span>.
+          </>
+        }
+        description="Acompañamos cada pedido con atención personal, envío coordinado y soporte post-venta real."
+      />
+
+      <div className="mt-8 grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
         {items.map((b) => (
-          <div
+          <article
             key={b.title}
-            className="premium-card premium-panel group relative overflow-hidden rounded-2xl p-5 text-center card-hover"
+            className="group flex h-full flex-col rounded-2xl border border-brand-soft bg-white p-6 transition hover:-translate-y-1 hover:border-brand-royal/30 hover:shadow-card"
           >
-            <div className="absolute inset-x-0 -top-px h-px gold-hairline opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white text-brand-royal ring-1 ring-brand-royal/10 transition-all duration-500 group-hover:scale-110 group-hover:from-brand-royal group-hover:to-brand-deep group-hover:text-white group-hover:shadow-lg group-hover:shadow-brand-royal/30">
+            <div className={`grid h-14 w-14 place-items-center rounded-2xl ring-1 transition ${toneClasses[b.tone]}`}>
               <b.icon className="h-6 w-6" />
             </div>
-            <div className="mt-4 font-display text-sm font-bold text-brand-deep">{b.title}</div>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{b.desc}</p>
-          </div>
+            <h4 className="mt-5 font-display text-[18px] font-bold leading-tight text-brand-deep">
+              {b.title}
+            </h4>
+            <p className="mt-2 flex-1 text-[14px] leading-[1.55] text-brand-muted">{b.desc}</p>
+            <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold text-brand-royal transition group-hover:gap-2.5">
+              {b.cta}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </article>
         ))}
       </div>
     </section>

@@ -1,116 +1,171 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, ArrowRight } from "lucide-react";
-import { products, formatPrice } from "@/lib/mock-data";
-import type { Product } from "@/lib/catalog-types";
-import { useCart } from "@/lib/cart-context";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { ArrowRight, Flame, MessageCircle } from "lucide-react";
+import type { Product } from "@/lib/catalog-types";
+import { formatPrice, WHATSAPP_PHONE } from "@/lib/mock-data";
 
-function Countdown() {
-  const [t, setT] = useState({ h: 5, m: 42, s: 18 });
+const productRouteId = (product: Product) =>
+  product.slug ??
+  product.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+function useCountdown(targetMs: number) {
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const i = setInterval(() => {
-      setT((p) => {
-        let { h, m, s } = p;
-        s--;
-        if (s < 0) { s = 59; m--; }
-        if (m < 0) { m = 59; h--; }
-        if (h < 0) { h = 23; }
-        return { h, m, s };
-      });
-    }, 1000);
-    return () => clearInterval(i);
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
   }, []);
-  const cell = (n: number, l: string) => (
-    <div className="flex min-w-16 flex-col items-center rounded-2xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur shadow-lg shadow-black/10">
-      <span className="font-display text-2xl font-extrabold tabular-nums">{String(n).padStart(2, "0")}</span>
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/60">{l}</span>
-    </div>
-  );
-  return (
-    <div className="flex items-center gap-2">
-      {cell(t.h, "hrs")}
-      <span className="text-white/40">:</span>
-      {cell(t.m, "min")}
-      <span className="text-white/40">:</span>
-      {cell(t.s, "seg")}
-    </div>
-  );
+  const diff = Math.max(0, targetMs - now);
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  return { d, h, m, s };
 }
 
-export function DealsSection({ items }: { items?: Product[] }) {
-  const { add } = useCart();
-  const deals = items ?? products.filter((p) => p.oldPrice).slice(0, 4);
-  const addDeal = (product: Product) => {
-    add(product);
-    toast.success("Producto agregado al carrito", {
-      description: `1 x ${product.name}`,
-    });
-  };
+const target = Date.now() + 1000 * 60 * 60 * 24 * 3;
+
+export function DealsSection({ items = [] }: { items?: Product[] }) {
+  const top = items.slice(0, 2);
+  const { d, h, m, s } = useCountdown(target);
+  const wa = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(
+    "Hola L&A, quiero consultar por las ofertas del Hot Sale",
+  )}`;
+
+  const topDiscount =
+    top
+      .map((p) => (p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0))
+      .reduce((a, b) => Math.max(a, b), 0) || 40;
 
   return (
-    <section className="brand-ambient relative overflow-hidden py-20 text-white lg:py-28">
-      <div className="pointer-events-none absolute inset-0 grid-pattern opacity-35" />
-      <div className="pointer-events-none absolute -left-16 top-12 h-40 w-[42rem] -rotate-6 bg-white/10 blur-3xl" />
-      <div className="pointer-events-none absolute right-[-10rem] bottom-8 h-44 w-[40rem] rotate-6 bg-brand-royal/40 blur-3xl" />
+    <section className="relative mx-auto max-w-[1240px] px-4 py-10 sm:px-7 lg:py-14">
+      <div
+        className="relative overflow-hidden rounded-[28px] border border-white/10 p-7 sm:p-10 lg:p-12"
+        style={{ background: "linear-gradient(120deg, #0B1B3F 0%, #1F3DE0 60%, #2A56FF 100%)" }}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage: "radial-gradient(ellipse 70% 70% at 70% 30%, black 20%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 70% 30%, black 20%, transparent 80%)",
+          }}
+        />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-brand-gold/20 blur-3xl" />
 
-      <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.2em] backdrop-blur">
-              <Flame className="h-3.5 w-3.5 text-brand-gold" /> Tiempo limitado
-            </div>
-            <h2 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-              Ofertas que <span className="text-gradient-white">vuelan</span>
-            </h2>
-            <p className="mt-3 max-w-xl text-white/70">
-              Promos seleccionadas por tiempo limitado. Aprovechá antes de que se agoten.
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="text-white">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em]">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold shadow-[0_0_10px_var(--brand-gold)]" />
+              Hot Sale L&amp;A
+            </span>
+            <h3 className="mt-4 font-display text-[clamp(26px,3.6vw,40px)] font-extrabold leading-[1.08] tracking-[-0.025em]">
+              Hasta {topDiscount}% off en{" "}
+              <span className="italic font-display font-semibold text-brand-gold-soft">
+                productos seleccionados
+              </span>
+              .
+            </h3>
+            <p className="mt-3 max-w-xl text-[15px] leading-[1.6] text-white/75">
+              Promo válida hasta agotar stock. Coordinamos el envío por WhatsApp en minutos.
+              Hasta 12 cuotas sin interés con tarjetas seleccionadas.
             </p>
-          </div>
-          <div className="flex flex-col items-start sm:items-end gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/60">Termina en</span>
-            <Countdown />
-          </div>
-        </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {deals.map((p) => {
-            const off = Math.round(((p.oldPrice! - p.price) / p.oldPrice!) * 100);
-            return (
-              <div key={p.id} className="premium-card group relative overflow-hidden rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur card-hover hover:border-brand-gold/50">
-                <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-white to-blue-50">
-                  <img src={p.image} alt={p.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <span className="absolute left-2 top-2 rounded-full bg-brand-gold px-3 py-1 text-xs font-black text-brand-night shadow-lg ring-1 ring-white/30">
-                    -{off}%
-                  </span>
-                </div>
-                <h3 className="mt-3 line-clamp-2 font-display font-semibold leading-snug">{p.name}</h3>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="font-display text-xl font-extrabold">{formatPrice(p.price)}</span>
-                  <span className="text-xs text-white/60 line-through">{formatPrice(p.oldPrice!)}</span>
-                </div>
-                <button
-                  onClick={() => addDeal(p)}
-                  className="group/btn relative mt-3 inline-flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-white px-3 py-2.5 text-sm font-bold text-brand-deep shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-blue-50"
+            <div className="mt-6 grid grid-cols-4 gap-2 sm:max-w-md sm:gap-3">
+              {[
+                { n: d, u: "Días" },
+                { n: h, u: "Horas" },
+                { n: m, u: "Min" },
+                { n: s, u: "Seg" },
+              ].map(({ n, u }) => (
+                <div
+                  key={u}
+                  className="rounded-2xl border border-white/15 bg-white/[0.08] px-2 py-3 text-center backdrop-blur"
                 >
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-                  Aprovechar <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="font-mono text-[26px] font-extrabold leading-none tabular-nums text-white">
+                    {String(n).padStart(2, "0")}
+                  </div>
+                  <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/55">{u}</div>
+                </div>
+              ))}
+            </div>
 
-        <div className="mt-8 text-center">
-          <Link
-            to="/catalogo"
-            search={{ tag: "ofertas" }}
-            className="group inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-brand-deep btn-glow transition hover:gap-3 hover:bg-blue-50"
-          >
-            Ver todas las ofertas <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                to="/catalogo"
+                search={{ tag: "ofertas" }}
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-bold text-[#0B1B3F] shadow-md transition hover:-translate-y-0.5"
+              >
+                <Flame className="h-4 w-4 text-brand-gold" />
+                Ver ofertas
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href={wa}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-6 font-bold text-white backdrop-blur transition hover:-translate-y-0.5 hover:border-brand-gold/60 hover:bg-white/[0.12]"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Consultar por WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div className="relative h-[320px] sm:h-[360px]">
+            <div
+              className="absolute right-2 top-2 z-10 grid h-24 w-24 place-items-center rounded-full border-4 border-white/30 text-center text-[#0B1B3F] sm:right-6 sm:top-0 sm:h-28 sm:w-28"
+              style={{ background: "radial-gradient(circle, #F1D89A 0%, #D4A24C 80%)" }}
+            >
+              <div>
+                <div className="font-display text-[24px] font-extrabold leading-none">{topDiscount}%</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em]">OFF</div>
+              </div>
+            </div>
+
+            {top[0] && <Tile product={top[0]} className="absolute left-0 top-12 w-[68%] -rotate-3" />}
+            {top[1] && <Tile product={top[1]} className="absolute right-0 bottom-0 w-[64%] rotate-3" />}
+            {!top.length && (
+              <div className="absolute inset-0 grid place-items-center rounded-3xl border border-dashed border-white/20 text-sm text-white/60">
+                Sin ofertas activas
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function Tile({ product, className }: { product: Product; className?: string }) {
+  return (
+    <Link
+      to="/producto/$id"
+      params={{ id: productRouteId(product) }}
+      className={`overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl transition hover:-translate-y-1 hover:rotate-0 ${className ?? ""}`}
+    >
+      <div className="aspect-[4/3] bg-brand-soft">
+        <img src={product.image} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+      </div>
+      <div className="px-3 py-3">
+        <div className="line-clamp-1 text-[13px] font-bold text-brand-deep">{product.name}</div>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="font-display text-[16px] font-extrabold text-brand-royal">
+            {formatPrice(product.price)}
+          </span>
+          {product.oldPrice && (
+            <span className="text-[11px] text-brand-muted line-through">
+              {formatPrice(product.oldPrice)}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }

@@ -636,6 +636,47 @@
   50% { background-position: 100% 50%; }
 }
 
+/* ============================================================
+   L&A public site — Hero animations / shared utilities
+   ============================================================ */
+:root {
+  --paper: #FBFAF7;
+  --paper-2: #F4F2EC;
+}
+@keyframes la-orbit-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes la-shimmer-bg {
+  0%, 100% { background-position: 0 0; }
+  50%      { background-position: 100% 0; }
+}
+@keyframes la-float-x-a {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(-30px,40px) scale(1.08); }
+}
+@keyframes la-float-x-b {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(40px,-30px) scale(1.1); }
+}
+.la-orbit { animation: la-orbit-spin linear infinite; }
+.la-rotate {
+  animation: la-orbit-spin 60s linear infinite;
+}
+.la-shimmer {
+  background-image: linear-gradient(105deg, #FFFFFF 30%, #F1D89A 60%, #D4A24C 80%, #FFFFFF 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: la-shimmer-bg 5s ease-in-out infinite;
+}
+.la-float-a { animation: la-float-x-a 14s ease-in-out infinite; }
+.la-float-b { animation: la-float-x-b 18s ease-in-out infinite; }
+.la-anim-up { animation: fade-up 0.7s cubic-bezier(.2,.7,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .la-orbit, .la-rotate, .la-float-a, .la-float-b, .la-shimmer { animation: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .group:hover .product-gallery-alt { animation: none; }
   .reveal-grid > * { opacity: 1; transform: none; }

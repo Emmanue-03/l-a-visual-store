@@ -12,8 +12,10 @@ import {
 import appCss from "../styles.css?url";
 import { CartProvider } from "@/lib/cart-context";
 import { Navbar } from "@/components/Navbar";
+import { Topbar } from "@/components/Topbar";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
+import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { Toaster } from "@/components/ui/sonner";
 import { getCatalog } from "@/backend/catalog";
 
@@ -124,7 +126,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col bg-[var(--paper,#FBFAF7)]">
+          <Topbar whatsappPhone={catalog.settings.whatsappPhone} />
           <Navbar
             categories={catalog.categories}
             products={catalog.products}
@@ -135,6 +138,7 @@ function RootComponent() {
           </main>
           <Footer />
           <CartDrawer whatsappPhone={catalog.settings.whatsappPhone} />
+          <WhatsAppFab whatsappPhone={catalog.settings.whatsappPhone} />
           <Toaster position="bottom-right" />
         </div>
       </CartProvider>

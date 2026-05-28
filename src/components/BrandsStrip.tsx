@@ -1,31 +1,26 @@
-const brands = ["Samsung", "Philips", "LG", "Sony", "Xiaomi", "Bosch", "Apple", "Lenovo"];
+const BRANDS = [
+  { name: "SAMSUNG", style: "font-extrabold" },
+  { name: "philips", style: "italic font-semibold" },
+  { name: "XIAOMI", style: "font-light tracking-[0.2em]" },
+  { name: "motorola", style: "italic font-semibold" },
+  { name: "JBL", style: "font-light tracking-[0.18em]" },
+  { name: "SONY", style: "font-extrabold" },
+  { name: "noblex", style: "italic font-semibold" },
+  { name: "LG", style: "font-light tracking-[0.2em]" },
+];
 
 export function BrandsStrip() {
   return (
-    <section className="relative max-w-full overflow-hidden border-y border-brand-royal/10 bg-gradient-to-b from-white via-brand-soft/40 to-white py-12 [contain:paint]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px gold-hairline opacity-70" />
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.25em] text-brand-muted">
-          Trabajamos con productos y marcas seleccionadas
-        </p>
-      </div>
-
-      {/* Marquee strip */}
-      <div className="relative mt-8 max-w-full overflow-hidden [contain:paint]">
-        {/* Fade edges */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent" />
-
-        <div className="flex w-max animate-marquee gap-16 px-6">
-          {[...brands, ...brands].map((b, i) => (
-            <div
-              key={`${b}-${i}`}
-              className="font-display text-2xl font-extrabold tracking-tight text-brand-muted/60 transition-colors hover:text-brand-royal"
-            >
-              {b}
-            </div>
-          ))}
-        </div>
+    <section className="border-y border-brand-soft bg-white">
+      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-center gap-x-12 gap-y-6 px-4 py-8 sm:px-7">
+        {BRANDS.map((b) => (
+          <span
+            key={b.name}
+            className={`select-none font-display text-[clamp(20px,2.2vw,28px)] text-brand-muted/80 transition hover:text-brand-deep ${b.style}`}
+          >
+            {b.name}
+          </span>
+        ))}
       </div>
     </section>
   );
