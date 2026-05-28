@@ -75,10 +75,10 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-[50ch] text-[16px] leading-[1.6] text-white/75 sm:text-[17px]">
-              Compra fácil, rápido y seguro en{" "}
-              <span className="font-semibold text-white">L&amp;A Multiventas</span>.
-              Tecnología, hogar, accesorios y ofertas imperdibles — con asesoramiento real
-              por WhatsApp y envíos coordinados a todo el país.
+              Todo para disfrutar tu mate y tereré en cualquier momento. En{" "}
+              <span className="font-semibold text-white">L&amp;A Multiventas</span>{" "}
+              encontrás termos térmicos, vasos, accesorios y productos prácticos con
+              compra rápida, atención por WhatsApp y envíos a todo el país.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3.5">
