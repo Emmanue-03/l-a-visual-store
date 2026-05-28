@@ -57,7 +57,7 @@ export function Navbar({
           : "bg-[rgba(251,250,247,0.78)] border-b border-transparent backdrop-blur",
       )}
     >
-      <div className="mx-auto grid h-[84px] max-w-[1240px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-7 lg:gap-6">
+      <div className="mx-auto flex h-[84px] max-w-[1240px] items-center gap-3 px-4 sm:px-7 lg:gap-4">
         {/* Brand */}
         <Link to="/" className="flex shrink-0 items-center gap-3 focus-premium">
           <span className="grid h-[46px] w-[46px] place-items-center overflow-hidden rounded-full bg-white shadow-[0_8px_22px_-10px_rgba(31,61,224,0.55)] ring-1 ring-white/40">
@@ -73,32 +73,17 @@ export function Navbar({
           </span>
         </Link>
 
-        {/* Smart search — solo desktop/tablet; mobile usa el de hero o /catalogo */}
-        <div className="hidden min-w-0 md:block">
+        {/* Smart search — desktop/tablet; mobile usa el de hero o /catalogo */}
+        <div className="hidden min-w-0 md:block md:flex-1 lg:flex-none lg:w-[420px]">
           <ProductSearch
-            className="mx-auto w-full max-w-[640px]"
+            className="w-full"
             categories={categories}
             products={products}
           />
         </div>
 
-        {/* Tools */}
-        <div className="flex items-center justify-self-end gap-2 lg:gap-2.5">
-          <div className="hidden items-center gap-1.5 lg:flex">
-            {SOCIALS.map(({ href, label, icon: Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="grid h-[40px] w-[40px] place-items-center rounded-full border border-brand-soft bg-white text-brand-muted transition hover:-translate-y-0.5 hover:border-brand-royal hover:text-brand-royal hover:shadow-card"
-              >
-                <Icon className="h-[18px] w-[18px]" />
-              </a>
-            ))}
-          </div>
-
+        {/* Heart + Cart, pegados al buscador */}
+        <div className="ml-auto flex items-center gap-2 md:ml-0 lg:gap-2.5">
           <Link
             to="/catalogo"
             aria-label="Favoritos"
@@ -119,15 +104,32 @@ export function Navbar({
               </span>
             )}
           </button>
-
-          <button
-            onClick={() => setOpen((s) => !s)}
-            aria-label="Menú"
-            className="grid h-11 w-11 place-items-center rounded-2xl border border-brand-soft bg-white text-brand-deep lg:hidden focus-premium"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
+
+        {/* Redes sociales — desktop, pegadas al borde derecho */}
+        <div className="ml-auto hidden items-center gap-1.5 lg:flex">
+          {SOCIALS.map(({ href, label, icon: Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="grid h-[40px] w-[40px] place-items-center rounded-full border border-brand-soft bg-white text-brand-muted transition hover:-translate-y-0.5 hover:border-brand-royal hover:text-brand-royal hover:shadow-card"
+            >
+              <Icon className="h-[18px] w-[18px]" />
+            </a>
+          ))}
+        </div>
+
+        {/* Menú mobile/tablet */}
+        <button
+          onClick={() => setOpen((s) => !s)}
+          aria-label="Menú"
+          className="grid h-11 w-11 place-items-center rounded-2xl border border-brand-soft bg-white text-brand-deep lg:hidden focus-premium"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
       {/* Nav strip de categorías */}
