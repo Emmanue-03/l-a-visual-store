@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
@@ -8,7 +9,13 @@ type CartDrawerProps = {
 
 export function CartDrawer({ whatsappPhone }: CartDrawerProps = {}) {
   const { isOpen, close, items, total, setQty, remove } = useCart();
-  const checkoutUrl = createCheckoutWhatsAppUrl(items, 0, whatsappPhone);
+  // Origin se setea solo en cliente (TanStack Start hace SSR); el primer
+  // render queda sin URL absoluta, post-hydration se actualiza.
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
+  const checkoutUrl = createCheckoutWhatsAppUrl(items, 0, whatsappPhone, origin);
 
   return (
     <>

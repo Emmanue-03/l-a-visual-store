@@ -126,22 +126,47 @@ export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURICom
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat("es-PY", { style: "currency", currency: "PYG", maximumFractionDigits: 0 }).format(n);
 
+// Mismo criterio que ProductCard.productRouteId: usar slug si existe,
+// si no, slugificar el nombre para construir la ruta /producto/...
+const productRouteId = (product: Product) =>
+  product.slug ??
+  product.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export const createCheckoutWhatsAppUrl = (
   items: { product: Product; qty: number }[],
   shipping = 0,
-  whatsappPhone = WHATSAPP_PHONE
+  whatsappPhone = WHATSAPP_PHONE,
+  origin = "",
 ) => {
-  const total = items.reduce((sum, item) => sum + item.product.price * item.qty, 0) + shipping;
-  const lines = items.map(
-    ({ product, qty }) => `- ${qty} x ${product.name}: ${formatPrice(product.price * qty)}`
-  );
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.qty, 0);
+  const total = subtotal + shipping;
+  const base = origin.replace(/\/$/, "");
+
+  const blocks = items.map(({ product, qty }, index) => {
+    const productPath = `/producto/${productRouteId(product)}`;
+    const productUrl = base ? `${base}${productPath}` : productPath;
+    return [
+      `${index + 1}. ${qty} x ${product.name}`,
+      `   Precio: ${formatPrice(product.price * qty)}`,
+      `   Producto: ${productUrl}`,
+    ].join("\n");
+  });
+
   const message = [
     "Hola L&A Multiventas, quiero finalizar esta compra:",
     "",
-    ...lines,
+    blocks.join("\n\n"),
     "",
+    shipping > 0 ? `Envío: ${formatPrice(shipping)}` : null,
     `Total: ${formatPrice(total)}`,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
 
   return `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
 };

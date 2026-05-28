@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ShieldCheck, Truck, MessageCircle, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
@@ -27,7 +28,13 @@ function CartPage() {
   const { items, total, setQty, remove } = useCart();
   const settings = useRootSettings();
   const shipping = items.length ? settings.defaultShippingCost || 25000 : 0;
-  const checkoutUrl = createCheckoutWhatsAppUrl(items, shipping, settings.whatsappPhone);
+  // Origin solo en cliente (SSR-safe), para construir URLs absolutas
+  // de cada producto dentro del mensaje de WhatsApp.
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
+  const checkoutUrl = createCheckoutWhatsAppUrl(items, shipping, settings.whatsappPhone, origin);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-12">
