@@ -56,29 +56,33 @@ export function Hero() {
         <div className="grid items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14 lg:py-[88px]">
           {/* Left: copy */}
           <div className="la-anim-up">
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/85 backdrop-blur">
+            <div className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-white/85 backdrop-blur sm:text-[12px] sm:tracking-[0.14em]">
               <span
                 className="grid h-[22px] w-[22px] place-items-center rounded-full text-[#1a1106]"
                 style={{ background: "linear-gradient(160deg, var(--brand-gold), #8E6A1F)" }}
               >
                 <Sparkles className="h-3 w-3" />
               </span>
-              Tu multitienda de confianza
+              <span aria-hidden>🇵🇾</span>
+              <span>Stock real</span>
+              <span className="text-white/40">·</span>
+              <span>Precios para reventa</span>
+              <span className="text-white/40">·</span>
+              <span>Atención por WhatsApp</span>
             </div>
 
-            <h1 className="mt-6 max-w-[14ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
-              Todo lo que buscas,
+            <h1 className="mt-6 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
+              Todo para vender,
               <br />
+              regalar y{" "}
               <span className="la-shimmer italic font-display font-semibold">
-                con atención premium.
+                disfrutar.
               </span>
             </h1>
 
             <p className="mt-6 max-w-[50ch] text-[16px] leading-[1.6] text-white/75 sm:text-[17px]">
-              Todo para disfrutar tu mate y tereré en cualquier momento. En{" "}
-              <span className="font-semibold text-white">L&amp;A Multiventas</span>{" "}
-              encontrás termos térmicos, vasos, accesorios y productos prácticos con
-              compra rápida, atención por WhatsApp y envíos a todo el país.
+              Celulares, perfumes, termos y <span className="font-semibold text-white">Hoppies personalizables</span>{" "}
+              con stock real, precios para reventa y atención rápida por WhatsApp.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3.5">
