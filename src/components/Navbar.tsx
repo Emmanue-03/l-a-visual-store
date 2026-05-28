@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Grid2x2, Heart, Menu, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Logo } from "./Logo";
+import { ProductSearch } from "./ProductSearch";
 import { useCart } from "@/lib/cart-context";
 import { categories as fallbackCategories } from "@/lib/mock-data";
 import type { Category, Product } from "@/lib/catalog-types";
@@ -15,7 +16,7 @@ type NavbarProps = {
 
 export function Navbar({
   categories = fallbackCategories,
-  products: _products = [],
+  products = [],
   whatsappPhone: _whatsappPhone,
 }: NavbarProps) {
   const [open, setOpen] = useState(false);
@@ -47,7 +48,7 @@ export function Navbar({
           : "bg-[rgba(251,250,247,0.78)] border-b border-transparent backdrop-blur",
       )}
     >
-      <div className="mx-auto flex h-[84px] max-w-[1240px] items-center justify-between gap-5 px-4 sm:px-7 lg:gap-7">
+      <div className="mx-auto grid h-[84px] max-w-[1240px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-7 lg:gap-6">
         {/* Brand */}
         <Link to="/" className="flex shrink-0 items-center gap-3 focus-premium">
           <span className="grid h-[46px] w-[46px] place-items-center overflow-hidden rounded-full bg-white shadow-[0_8px_22px_-10px_rgba(31,61,224,0.55)] ring-1 ring-white/40">
@@ -63,8 +64,17 @@ export function Navbar({
           </span>
         </Link>
 
+        {/* Smart search — solo desktop/tablet; mobile usa el de hero o /catalogo */}
+        <div className="hidden min-w-0 md:block">
+          <ProductSearch
+            className="mx-auto w-full max-w-[640px]"
+            categories={categories}
+            products={products}
+          />
+        </div>
+
         {/* Tools */}
-        <div className="flex items-center gap-2 lg:gap-2.5">
+        <div className="flex items-center justify-self-end gap-2 lg:gap-2.5">
           <Link
             to="/catalogo"
             aria-label="Favoritos"
@@ -141,6 +151,13 @@ export function Navbar({
       {open && (
         <div className="border-t border-brand-soft bg-white shadow-xl animate-fade-up lg:hidden">
           <div className="mx-auto max-w-[1240px] space-y-2 px-4 py-3">
+            <ProductSearch
+              className="md:hidden"
+              compact
+              categories={categories}
+              products={products}
+              onPick={() => setOpen(false)}
+            />
             <Link
               to="/"
               className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-brand-deep hover:bg-brand-soft"
