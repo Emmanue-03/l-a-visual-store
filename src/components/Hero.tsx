@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BadgeCheck,
   Clock,
-  CreditCard,
   Flame,
   Headphones,
   Sparkles,
@@ -175,7 +174,6 @@ export function Hero() {
           <Badge icon={<BadgeCheck className="h-4 w-4 text-brand-gold" />} text="Mercado Pago verificado" />
           <Badge icon={<Truck className="h-4 w-4 text-brand-gold" />} text="Envíos a todo el país" />
           <Badge icon={<Clock className="h-4 w-4 text-brand-gold" />} text="Entrega 24/48 hs" />
-          <Badge icon={<CreditCard className="h-4 w-4 text-brand-gold" />} text="Hasta 12 cuotas sin interés" />
           <Badge icon={<Headphones className="h-4 w-4 text-brand-gold" />} text="Atención personal" />
         </div>
       </div>
