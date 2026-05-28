@@ -3,7 +3,7 @@ import { clearSession, getRequestHeader, updateSession, useSession } from "@tans
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import type { AdminUser } from "@/lib/catalog-types";
-import { getServerEnv } from "./env";
+import { describeEnv, getAdminSessionSecret, getServerEnv } from "./env";
 import { verifyPassword } from "./crypto";
 import { restInsert, restSelect, restUpdate } from "./supabase-rest";
 
@@ -26,8 +26,30 @@ const loginSchema = z.object({
 });
 
 // Module-local helpers (no exports = bundler can tree-shake from client chunks).
+// IMPORTANTE: ninguna lectura de env a nivel modulo. Toda lectura ocurre cuando
+// se invoca sessionConfig() en el flujo del request, asi siempre vemos el env
+// actualizado por withRequestEnv (CF Worker simulator) o process.env (Vercel).
 function sessionConfig() {
-  const password = getServerEnv("ADMIN_SESSION_SECRET");
+  let password: string | null = null;
+  let probeError: string | null = null;
+  try {
+    password = getAdminSessionSecret();
+  } catch (error) {
+    probeError = error instanceof Error ? error.message : String(error);
+  }
+
+  // Log seguro de runtime — confirma que el server ve el secret. No imprime
+  // el valor, solo si existe, su longitud y de donde lo saco describeEnv.
+  if (process.env.NODE_ENV !== "production") {
+    const probe = describeEnv("ADMIN_SESSION_SECRET");
+    console.log("[admin-env]", {
+      hasAdminSessionSecret: probe.exists,
+      adminSessionSecretLength: probe.length,
+      source: probe.source,
+      helperError: probeError,
+    });
+  }
+
   if (!password) return null;
 
   return {

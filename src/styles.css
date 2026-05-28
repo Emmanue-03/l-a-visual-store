@@ -81,21 +81,23 @@
   --brand-gold: oklch(0.82 0.15 86);     /* logo gold accent */
   --brand-gold-soft: oklch(0.94 0.08 88);
 
-  /* M&G Perfumeria — luxury palette (admin) */
-  --mg-magenta: oklch(0.58 0.27 348);        /* hot magenta */
-  --mg-magenta-soft: oklch(0.72 0.22 350);   /* bright pink highlight */
-  --mg-magenta-deep: oklch(0.42 0.24 348);   /* deep magenta shadow */
-  --mg-pink: oklch(0.86 0.10 350);           /* soft rose */
-  --mg-gold: oklch(0.78 0.13 78);            /* warm rose gold */
-  --mg-gold-soft: oklch(0.88 0.10 82);       /* gold highlight */
-  --mg-gold-deep: oklch(0.62 0.13 70);       /* deep gold */
-  --mg-black: oklch(0.06 0.005 320);         /* near-pure black with hint of magenta */
-  --mg-night: oklch(0.10 0.02 340);          /* panel bg */
-  --mg-ink: oklch(0.14 0.03 340);            /* card bg */
-  --mg-ink-soft: oklch(0.18 0.04 340);       /* card hover */
-  --mg-line: oklch(1 0 0 / 8%);              /* subtle borders */
-  --mg-text: oklch(0.97 0.01 340);           /* primary text */
-  --mg-muted: oklch(0.66 0.04 340);          /* muted text */
+  /* L&A Multiventas — admin palette (azul #1A3D8F / dorado #D4A02A / blanco) */
+  /* Los tokens conservan el prefijo legacy "mg-" para no romper clases consumidoras,
+     pero ahora resuelven a la paleta L&A. "magenta" = azul, "gold" = dorado. */
+  --mg-magenta: oklch(0.41 0.16 268);        /* #1A3D8F azul L&A principal */
+  --mg-magenta-soft: oklch(0.55 0.16 263);   /* #2A5BC4 azul medio para gradientes */
+  --mg-magenta-deep: oklch(0.27 0.13 268);   /* #0F2557 azul profundo */
+  --mg-pink: oklch(0.78 0.10 75);            /* dorado claro como acento suave */
+  --mg-gold: oklch(0.73 0.13 80);            /* #D4A02A dorado L&A principal */
+  --mg-gold-soft: oklch(0.91 0.08 82);       /* #F5E7BF dorado claro */
+  --mg-gold-deep: oklch(0.58 0.13 75);       /* dorado profundo */
+  --mg-black: oklch(0.20 0.06 268);          /* azul casi negro (modo dark fallback) */
+  --mg-night: oklch(0.27 0.13 268);          /* fondo deep modo dark */
+  --mg-ink: oklch(0.32 0.13 268);            /* card bg modo dark */
+  --mg-ink-soft: oklch(0.38 0.12 268);       /* card hover modo dark */
+  --mg-line: oklch(1 0 0 / 12%);             /* borde sutil */
+  --mg-text: oklch(0.97 0.01 250);           /* texto modo dark */
+  --mg-muted: oklch(0.74 0.04 250);          /* texto secundario modo dark */
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.17 0.07 264);
@@ -159,45 +161,75 @@
    M&G ADMIN — luxury theme scope
    Applied via `.mg-admin` wrapper on the admin layout root.
    ============================================================ */
+/* L&A admin — modo claro por default (panel sobrio, blanco/azul/dorado).
+   .mg-admin sin .mg-light usa el modo claro; agregar .mg-light es noop.
+   Si el usuario activa "dark", se aplica .mg-dark abajo. */
 .mg-admin {
+  --background: oklch(0.985 0.005 250);          /* #F8FAFC */
+  --foreground: oklch(0.21 0.05 264);            /* #0F172A */
+  --card: oklch(1 0 0);                          /* #FFFFFF */
+  --card-foreground: oklch(0.21 0.05 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.05 264);
+  --primary: var(--mg-magenta);                  /* azul L&A */
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.02 250);
+  --secondary-foreground: oklch(0.21 0.05 264);
+  --muted: oklch(0.96 0.02 250);
+  --muted-foreground: oklch(0.50 0.04 250);      /* #64748B */
+  --accent: color-mix(in oklab, var(--mg-magenta) 8%, white);
+  --accent-foreground: oklch(0.21 0.05 264);
+  --destructive: oklch(0.60 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.92 0.02 250);                /* #E2E8F0 */
+  --input: oklch(0.92 0.02 250);
+  --ring: var(--mg-magenta);
+  color-scheme: light;
+
+  /* Aliases L&A semánticos sobre los tokens legacy (mismos valores en modo claro) */
+  --la-text: oklch(0.21 0.05 264);
+  --la-muted: oklch(0.50 0.04 250);
+  --la-bg: oklch(0.985 0.005 250);
+  --la-surface: oklch(1 0 0);
+  --la-line: oklch(0.92 0.02 250);
+}
+
+/* En modo claro los tokens "ink/night/black" (heredados, usados en cards/sidebars)
+   deben resolver a blancos/grises claros para no romper layouts existentes. */
+.mg-admin:not(.mg-dark) {
+  --mg-black: oklch(0.985 0.005 250);            /* fondo general claro */
+  --mg-night: oklch(1 0 0);                      /* topbar/header */
+  --mg-ink: oklch(1 0 0);                        /* cards */
+  --mg-ink-soft: oklch(0.97 0.01 250);           /* card hover */
+  --mg-line: oklch(0 0 0 / 8%);                  /* bordes claros */
+  --mg-text: oklch(0.21 0.05 264);
+  --mg-muted: oklch(0.50 0.04 250);
+  /* "pink" como acento dorado suave para hovers/icons sobre fondo claro */
+  --mg-pink: oklch(0.55 0.16 263);               /* hover = azul medio en claro */
+}
+
+/* Modo dark opcional (azul deep L&A en vez de magenta) */
+.mg-admin.mg-dark {
   --background: var(--mg-black);
   --foreground: var(--mg-text);
   --card: var(--mg-ink);
   --card-foreground: var(--mg-text);
   --popover: var(--mg-ink);
   --popover-foreground: var(--mg-text);
-  --primary: var(--mg-magenta);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: var(--mg-gold);
+  --primary-foreground: oklch(0.21 0.05 264);
   --secondary: var(--mg-ink-soft);
   --secondary-foreground: var(--mg-text);
   --muted: var(--mg-ink-soft);
   --muted-foreground: var(--mg-muted);
-  --accent: color-mix(in oklab, var(--mg-magenta) 18%, var(--mg-ink));
+  --accent: color-mix(in oklab, var(--mg-gold) 18%, var(--mg-ink));
   --accent-foreground: var(--mg-text);
   --destructive: oklch(0.66 0.24 25);
   --destructive-foreground: oklch(0.99 0 0);
   --border: var(--mg-line);
   --input: oklch(1 0 0 / 12%);
-  --ring: var(--mg-magenta);
+  --ring: var(--mg-gold);
   color-scheme: dark;
-}
-
-.mg-admin.mg-light {
-  --background: oklch(0.985 0.005 340);
-  --foreground: oklch(0.16 0.04 340);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.04 340);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.04 340);
-  --secondary: oklch(0.96 0.02 340);
-  --secondary-foreground: oklch(0.16 0.04 340);
-  --muted: oklch(0.96 0.02 340);
-  --muted-foreground: oklch(0.50 0.05 340);
-  --accent: color-mix(in oklab, var(--mg-magenta) 10%, white);
-  --accent-foreground: oklch(0.20 0.10 340);
-  --border: oklch(0.16 0.04 340 / 10%);
-  --input: oklch(0.16 0.04 340 / 12%);
-  color-scheme: light;
 }
 
 @layer utilities {
@@ -467,20 +499,33 @@
     outline-offset: 3px;
   }
 
-  /* === M&G admin utilities === */
+  /* === L&A admin utilities (clases legacy mg-* repintadas) === */
+  /* En modo claro: fondo blanco-suave, sidebar azul sólido, gradiente primario azul. */
   .bg-mg-radial {
     background-image:
-      radial-gradient(at 12% 8%, color-mix(in oklab, var(--mg-magenta) 35%, transparent) 0px, transparent 55%),
-      radial-gradient(at 88% 92%, color-mix(in oklab, var(--mg-magenta-deep) 45%, transparent) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, color-mix(in oklab, var(--mg-gold) 6%, transparent) 0px, transparent 60%),
-      linear-gradient(180deg, var(--mg-black) 0%, color-mix(in oklab, var(--mg-black) 80%, var(--mg-magenta-deep)) 100%);
+      radial-gradient(at 0% 0%, color-mix(in oklab, var(--mg-magenta) 6%, transparent) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, color-mix(in oklab, var(--mg-gold) 5%, transparent) 0px, transparent 55%),
+      linear-gradient(180deg, var(--mg-black) 0%, var(--mg-black) 100%);
   }
   .bg-mg-sidebar {
     background-image:
-      linear-gradient(180deg, color-mix(in oklab, var(--mg-black) 92%, var(--mg-magenta-deep)) 0%, var(--mg-black) 100%);
+      linear-gradient(180deg, var(--mg-magenta-deep) 0%, var(--mg-magenta) 100%);
+    /* Dentro del sidebar (azul sólido) el texto y bordes deben ser claros
+       sin importar el modo claro/oscuro del resto del panel. */
+    --mg-text: oklch(1 0 0);
+    --mg-muted: oklch(0.85 0.02 250);
+    --mg-line: oklch(1 0 0 / 14%);
+    --mg-ink: color-mix(in oklab, white 8%, var(--mg-magenta-deep));
+    --mg-ink-soft: color-mix(in oklab, white 14%, var(--mg-magenta-deep));
+    --mg-night: var(--mg-magenta-deep);
+    --mg-pink: var(--mg-gold-soft);
+    color: white;
+  }
+  .bg-mg-sidebar a:hover {
+    background-color: color-mix(in oklab, white 10%, transparent);
   }
   .bg-mg-magenta-gradient {
-    background-image: linear-gradient(135deg, var(--mg-magenta) 0%, var(--mg-magenta-deep) 100%);
+    background-image: linear-gradient(135deg, var(--mg-magenta) 0%, var(--mg-magenta-soft) 100%);
   }
   .bg-mg-gold-gradient {
     background-image: linear-gradient(135deg, var(--mg-gold-soft) 0%, var(--mg-gold) 50%, var(--mg-gold-deep) 100%);

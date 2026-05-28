@@ -1,9 +1,21 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Edit3, Eye, EyeOff, Filter, Package, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { DataTable, type Column } from "@/components/admin/DataTable";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { ExportMenu } from "@/components/admin/ExportMenu";
 import { ProductDialog, type ProductDialogState } from "@/components/admin/ProductDialog";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatPrice } from "@/lib/mock-data";
 import { formatAdminError } from "@/lib/error-format";
 import { getCurrentAdmin } from "@/backend/admin-auth";
@@ -13,6 +25,7 @@ import {
   listAdminProducts,
   setAdminProductActive,
 } from "@/backend/admin-products";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/productos/")({
   loader: async () => {
@@ -25,59 +38,62 @@ export const Route = createFileRoute("/admin/productos/")({
     return { admin, products, categories };
   },
   component: AdminProducts,
+  head: () => ({ meta: [{ title: "Productos | L&A Multiventas" }] }),
 });
+
+type ProductRow = {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  brandName: string;
+  categoryName: string;
+  imageUrl: string;
+  price: number;
+  stock: number;
+  threshold: number;
+  isActive: boolean;
+  raw: unknown;
+};
 
 function AdminProducts() {
   const { admin, products, categories } = Route.useLoaderData();
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("todos");
+  const [filter, setFilter] = useState<"todos" | "activos" | "inactivos" | "stock-bajo" | "agotados">("todos");
   const [dialog, setDialog] = useState<ProductDialogState>({ mode: "closed" });
   const router = useRouter();
 
-  const filtered = useMemo(
+  const rows: ProductRow[] = useMemo(
     () =>
-      products.filter((product) => {
-        const matchesText = [
-          product.name,
-          product.category_slug ?? "",
-          product.category_name ?? "",
-          product.badge ?? "",
-          product.sku ?? "",
-        ]
-          .join(" ")
-          .toLowerCase()
-          .includes(query.toLowerCase());
-        const minStock = product.low_stock_threshold ?? 5;
-        const stock = product.stock ?? 0;
-        const matchesFilter =
-          filter === "todos" ||
-          (filter === "activos" && product.is_active) ||
-          (filter === "inactivos" && !product.is_active) ||
-          (filter === "stock-bajo" && stock <= minStock);
-        return matchesText && matchesFilter;
-      }),
-    [filter, products, query],
+      products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        sku: p.sku ?? "—",
+        brandName: p.badge ?? "—",
+        categoryName: p.category_name ?? p.category_slug ?? "Sin categoría",
+        imageUrl: p.image_url ?? "",
+        price: p.price,
+        stock: p.stock ?? 0,
+        threshold: p.low_stock_threshold ?? 5,
+        isActive: Boolean(p.is_active),
+        raw: p,
+      })),
+    [products],
   );
 
-  const toggleActive = async (id: string, currentlyActive: boolean) => {
+  const toggleActive = async (row: ProductRow) => {
     try {
-      await setAdminProductActive({ data: { id, is_active: !currentlyActive } });
-      toast.success(currentlyActive ? "Producto desactivado" : "Producto activado");
+      await setAdminProductActive({ data: { id: row.id, is_active: !row.isActive } });
+      toast.success(row.isActive ? "Producto desactivado" : "Producto activado");
       router.invalidate();
     } catch (error) {
       toast.error(formatAdminError(error, "No se pudo cambiar el estado."));
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Eliminar «${name}» definitivamente? Esta accion no se puede deshacer.`)
-    ) {
-      return;
-    }
+  const handleDelete = async (row: ProductRow) => {
     try {
-      await deleteAdminProduct({ data: { id } });
+      await deleteAdminProduct({ data: { id: row.id } });
       toast.success("Producto eliminado");
       router.invalidate();
     } catch (error) {
@@ -85,144 +101,163 @@ function AdminProducts() {
     }
   };
 
+  const filtered = useMemo(() =>
+    rows.filter((r) => {
+      if (filter === "activos") return r.isActive;
+      if (filter === "inactivos") return !r.isActive;
+      if (filter === "stock-bajo") return r.stock > 0 && r.stock <= r.threshold;
+      if (filter === "agotados") return r.stock === 0;
+      return true;
+    }), [rows, filter]);
+
+  const stats = {
+    total: rows.length,
+    active: rows.filter((r) => r.isActive).length,
+    low: rows.filter((r) => r.stock > 0 && r.stock <= r.threshold).length,
+    out: rows.filter((r) => r.stock === 0).length,
+  };
+
+  const columns: Column<ProductRow>[] = [
+    {
+      key: "product",
+      header: "Producto",
+      render: (r) => (
+        <div className="flex items-center gap-3">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-mg-line bg-mg-night">
+            {r.imageUrl ? (
+              <img src={r.imageUrl} alt={r.name} className="h-full w-full object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.2"; }} />
+            ) : (
+              <Package className="m-auto h-5 w-5 text-mg-muted" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="truncate font-bold text-mg-text">{r.name}</div>
+            <div className="truncate text-xs text-mg-muted">{r.slug}</div>
+          </div>
+        </div>
+      ),
+    },
+    { key: "sku", header: "SKU", render: (r) => <code className="font-mono text-xs text-mg-gold-soft">{r.sku}</code> },
+    { key: "brand", header: "Marca", render: (r) => <span className="text-sm text-mg-text/85">{r.brandName}</span> },
+    { key: "category", header: "Categoría", render: (r) => <span className="text-sm text-mg-text/85 capitalize">{r.categoryName}</span> },
+    {
+      key: "stock",
+      header: "Stock",
+      align: "center",
+      render: (r) => {
+        if (r.stock === 0) return <span className="inline-flex rounded-full border border-rose-400/30 bg-rose-500/10 px-2.5 py-0.5 text-xs font-bold text-rose-300">Agotado</span>;
+        if (r.stock <= r.threshold) return <span className="inline-flex rounded-full border border-amber-400/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-300">{r.stock} u</span>;
+        return <span className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-300">{r.stock} u</span>;
+      },
+    },
+    { key: "price", header: "Precio", align: "right", render: (r) => <span className="font-display font-bold text-mg-gold-soft">{formatPrice(r.price)}</span> },
+    {
+      key: "status",
+      header: "Estado",
+      align: "center",
+      render: (r) => r.isActive
+        ? <span className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-300">Activo</span>
+        : <span className="inline-flex rounded-full border border-mg-line bg-mg-night/50 px-2 py-0.5 text-[10px] font-bold uppercase text-mg-muted">Inactivo</span>,
+    },
+    {
+      key: "actions",
+      header: "Acciones",
+      align: "right",
+      render: (r) => (
+        <div className="inline-flex items-center gap-1">
+          <button
+            onClick={() => setDialog({ mode: "edit", product: r.raw as any })}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-mg-line text-mg-muted hover:border-mg-magenta/50 hover:text-mg-pink"
+            aria-label="Editar"
+          >
+            <Edit3 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => toggleActive(r)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-mg-line text-mg-muted hover:border-mg-magenta/50 hover:text-mg-pink"
+            aria-label={r.isActive ? "Desactivar" : "Activar"}
+            title={r.isActive ? "Desactivar" : "Activar"}
+          >
+            {r.isActive ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+          </button>
+          <ConfirmDialog
+            trigger={
+              <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-mg-line text-mg-muted hover:border-rose-400/50 hover:text-rose-300">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            }
+            title="Eliminar producto"
+            description={<>¿Eliminar <strong className="text-mg-text">«{r.name}»</strong> definitivamente?</>}
+            onConfirm={() => handleDelete(r)}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  const exportRows = filtered.map((r) => ({
+    SKU: r.sku, Producto: r.name, Marca: r.brandName, Categoría: r.categoryName,
+    Stock: r.stock, "Precio (Gs)": r.price, Estado: r.isActive ? "Activo" : "Inactivo",
+  }));
+
   return (
     <AdminLayout admin={admin}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-brand-deep">Productos</h1>
-          <p className="text-sm text-slate-500">Catalogo administrable conectado a DB.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setDialog({ mode: "create" })}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-royal px-4 py-2 text-sm font-bold text-white shadow-sm hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Nuevo producto
-        </button>
+      <PageHeader
+        title="Productos"
+        description="Catálogo conectado a tu base de datos"
+        icon={<Package className="h-5 w-5" />}
+        actions={
+          <>
+            <ExportMenu filename="la-productos" rows={exportRows} />
+            <Button onClick={() => setDialog({ mode: "create" })} className="bg-mg-magenta-gradient text-white shadow-mg-glow hover:opacity-95">
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo producto
+            </Button>
+          </>
+        }
+      />
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Mini label="Total" value={stats.total} />
+        <Mini label="Activos" value={stats.active} tone="emerald" />
+        <Mini label="Stock bajo" value={stats.low} tone="amber" />
+        <Mini label="Agotados" value={stats.out} tone="rose" />
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4">
-        <label className="flex min-w-64 flex-1 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2">
-          <Search className="h-4 w-4 text-slate-400" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar por nombre, SKU, categoria, badge..."
-            className="w-full bg-transparent text-sm outline-none"
-          />
-        </label>
-        <select
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-        >
-          <option value="todos">Todos</option>
-          <option value="activos">Activos</option>
-          <option value="inactivos">Inactivos</option>
-          <option value="stock-bajo">Stock bajo</option>
-        </select>
-      </div>
-
-      <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Producto</th>
-              <th className="px-4 py-3">Categoria</th>
-              <th className="px-4 py-3">Precio</th>
-              <th className="px-4 py-3">Stock</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500">
-                  {products.length === 0
-                    ? "Todavia no hay productos. Crea el primero con «Nuevo producto»."
-                    : "No hay resultados para los filtros aplicados."}
-                </td>
-              </tr>
-            ) : (
-              filtered.map((product) => (
-                <tr key={product.id}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="h-11 w-11 rounded-lg bg-slate-100 object-cover"
-                        onError={(event) => {
-                          (event.currentTarget as HTMLImageElement).style.opacity = "0.2";
-                        }}
-                      />
-                      <div>
-                        <div className="font-semibold text-slate-900">{product.name}</div>
-                        <div className="text-xs text-slate-500">{product.slug}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {product.category_id ? (
-                      <span className="capitalize">
-                        {product.category_name ?? product.category_slug}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
-                        Sin categoria
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-brand-royal">
-                    {formatPrice(product.price)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums">{product.stock ?? 0}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-bold ${
-                        product.is_active
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {product.is_active ? "Activo" : "Inactivo"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setDialog({ mode: "edit", product })}
-                        className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 hover:bg-slate-50"
-                        aria-label={`Editar ${product.name}`}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleActive(product.id, Boolean(product.is_active))}
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold hover:bg-slate-50"
-                      >
-                        {product.is_active ? "Desactivar" : "Activar"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(product.id, product.name)}
-                        className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-600"
-                        aria-label={`Eliminar ${product.name}`}
-                        title="Eliminar definitivamente"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <Filter className="h-4 w-4 text-mg-muted" />
+        {([
+          { k: "todos" as const, l: "Todos" },
+          { k: "activos" as const, l: "Activos" },
+          { k: "inactivos" as const, l: "Inactivos" },
+          { k: "stock-bajo" as const, l: "Stock bajo" },
+          { k: "agotados" as const, l: "Agotados" },
+        ]).map(({ k, l }) => (
+          <button
+            key={k}
+            onClick={() => setFilter(k)}
+            className={cn(
+              "rounded-full border px-3 py-1 text-xs font-bold transition",
+              filter === k
+                ? "border-mg-magenta bg-mg-magenta-gradient text-white shadow-mg-glow"
+                : "border-mg-line bg-mg-ink/60 text-mg-muted hover:border-mg-magenta/40 hover:text-mg-text",
             )}
-          </tbody>
-        </table>
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        <DataTable
+          data={filtered}
+          columns={columns}
+          searchKeys={["name", "sku", "brandName", "categoryName", "slug"]}
+          searchPlaceholder="Buscar nombre, SKU, marca o categoría…"
+          rowKey={(r) => r.id}
+          pageSize={10}
+        />
       </div>
 
       <ProductDialog
@@ -235,5 +270,20 @@ function AdminProducts() {
         }}
       />
     </AdminLayout>
+  );
+}
+
+function Mini({ label, value, tone = "magenta" }: { label: string; value: number; tone?: "magenta" | "emerald" | "amber" | "rose" }) {
+  const toneCls = {
+    magenta: "text-mg-pink",
+    emerald: "text-emerald-300",
+    amber: "text-amber-300",
+    rose: "text-rose-300",
+  }[tone];
+  return (
+    <div className="rounded-2xl border border-mg-line bg-mg-ink/60 p-4">
+      <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-mg-muted">{label}</div>
+      <div className={cn("mt-1 font-display text-3xl font-bold", toneCls)}>{value}</div>
+    </div>
   );
 }

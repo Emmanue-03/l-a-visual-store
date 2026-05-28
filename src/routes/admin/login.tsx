@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { AlertTriangle, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { getCurrentAdmin, loginAdmin } from "@/backend/admin-auth";
+import logoSrc from "@/assets/la-logo.jpg";
 
 export const Route = createFileRoute("/admin/login")({
   loader: async () => {
@@ -55,11 +56,15 @@ function AdminLogin() {
     <div className="grid min-h-screen place-items-center bg-slate-100 px-4">
       <form onSubmit={submit} className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl">
         <div className="text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-brand-royal text-white">
-            <Lock className="h-5 w-5" />
-          </div>
-          <h1 className="mt-4 font-display text-2xl font-bold text-brand-deep">Panel administrador</h1>
-          <p className="mt-1 text-sm text-slate-500">Acceso privado de L&A Multiventas</p>
+          <img
+            src={logoSrc}
+            alt="L&A Multiventas"
+            className="mx-auto h-20 w-20 rounded-full object-cover ring-2 ring-brand-royal/15"
+          />
+          <h1 className="mt-4 font-display text-2xl font-bold text-brand-deep">
+            L&amp;A <span className="text-[color:var(--mg-gold)]">Multiventas</span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">Panel administrador — acceso privado</p>
         </div>
 
         {errorMessage && (

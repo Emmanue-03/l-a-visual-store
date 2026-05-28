@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { describeEnv, withRequestEnv } from "./backend/env";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -74,18 +75,43 @@ const FAVICON_URL =
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
-    try {
-      const url = new URL(request.url);
-      if (url.pathname === "/favicon.ico") {
-        return Response.redirect(FAVICON_URL, 302);
-      }
-
-      const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
-      console.error(error);
-      return brandedErrorResponse();
+    // Diagnostico SEGURO (no valores, solo nombres y longitudes). Confirma
+    // si .dev.vars llega al worker simulado y si ALS/process.env tiene
+    // ADMIN_SESSION_SECRET.
+    if (process.env.NODE_ENV !== "production") {
+      const envObj = env && typeof env === "object" ? (env as Record<string, unknown>) : {};
+      const envKeys = Object.keys(envObj);
+      const probe = describeEnv("ADMIN_SESSION_SECRET");
+      console.log("[server-fetch] entry probe", {
+        url: request.url,
+        envHasObject: Boolean(env),
+        envKeys: envKeys, // solo nombres, no valores
+        envHasAdminSecret:
+          typeof envObj.ADMIN_SESSION_SECRET === "string" &&
+          envObj.ADMIN_SESSION_SECRET.length > 0,
+        processHasAdminSecret: Boolean(globalThis?.process?.env?.ADMIN_SESSION_SECRET),
+        describeEnv: probe,
+      });
     }
+
+    // Envolvemos la request en withRequestEnv para que las server fns puedan
+    // leer secrets desde el binding `env` del worker (.dev.vars en dev,
+    // process.env en Vercel — withRequestEnv hace el primero, getServerEnv
+    // cae al segundo si no encuentra).
+    return withRequestEnv(env, async () => {
+      try {
+        const url = new URL(request.url);
+        if (url.pathname === "/favicon.ico") {
+          return Response.redirect(FAVICON_URL, 302);
+        }
+
+        const handler = await getServerEntry();
+        const response = await handler.fetch(request, env, ctx);
+        return await normalizeCatastrophicSsrResponse(response);
+      } catch (error) {
+        console.error(error);
+        return brandedErrorResponse();
+      }
+    });
   },
 };
