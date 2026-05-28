@@ -5,7 +5,6 @@ import {
   Grid2x2,
   Heart,
   Menu,
-  MessageCircle,
   Search,
   ShoppingCart,
   Sparkles,
@@ -13,7 +12,7 @@ import {
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { useCart } from "@/lib/cart-context";
-import { categories as fallbackCategories, WHATSAPP_PHONE } from "@/lib/mock-data";
+import { categories as fallbackCategories } from "@/lib/mock-data";
 import type { Category, Product } from "@/lib/catalog-types";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +25,7 @@ type NavbarProps = {
 export function Navbar({
   categories = fallbackCategories,
   products: _products = [],
-  whatsappPhone = WHATSAPP_PHONE,
+  whatsappPhone: _whatsappPhone,
 }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -36,7 +35,6 @@ export function Navbar({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { count, open: openCart } = useCart();
 
-  const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent("Hola L&A Multiventas")}`;
   const productCategories = categories.filter(
     (category) => !["ofertas", "nuevos"].includes(category.slug),
   );
@@ -147,17 +145,6 @@ export function Navbar({
               </span>
             )}
           </button>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="hidden h-[46px] items-center gap-2 rounded-full bg-gradient-to-b from-[#2BE471] to-[#19BD58] px-4 text-sm font-bold text-[#052915] shadow-[0_10px_22px_-10px_rgba(37,211,102,.6),inset_0_1px_0_rgba(255,255,255,.5)] transition hover:-translate-y-0.5 sm:inline-flex"
-          >
-            <span className="relative h-2 w-2 rounded-full bg-[#062915] before:absolute before:inset-0 before:rounded-full before:bg-[#062915]/55 before:animate-ping" />
-            <MessageCircle className="h-[18px] w-[18px]" />
-            <span className="hidden md:inline">WhatsApp</span>
-          </a>
 
           <button
             onClick={() => setOpen((s) => !s)}
