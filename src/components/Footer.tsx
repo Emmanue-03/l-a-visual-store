@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { FormEvent, useState } from "react";
 import { Facebook, Instagram, MessageCircle, Users } from "lucide-react";
 import { Logo } from "./Logo";
+import { TikTokIcon } from "./icons/TikTokIcon";
 
 const PAYMENTS = ["VISA", "MC", "AMEX", "MP", "TRANSF.", "EFECTIVO"];
 
@@ -11,6 +12,7 @@ const CONTACT = {
   facebook: "https://www.facebook.com/share/1UvD2q8rWa/?mibextid=wwXIfr",
   fanpage: "https://www.facebook.com/share/17ogkTMjfG/?mibextid=wwXIfr",
   instagram: "https://www.instagram.com/lya_multiventas?igsh=MTkxOGUzbmp4NXZr",
+  tiktok: "https://www.tiktok.com/@lya_multiventas?_r=1&_t=ZS-96jl2hPaB7d",
   email: "javieladio@msn.com",
 };
 
@@ -78,6 +80,7 @@ export function Footer() {
 
           <div className="mt-5 flex gap-2">
             <SocialLink href={CONTACT.instagram} label="Instagram"><Instagram className="h-4 w-4" /></SocialLink>
+            <SocialLink href={CONTACT.tiktok} label="TikTok"><TikTokIcon className="h-4 w-4" /></SocialLink>
             <SocialLink href={CONTACT.facebook} label="Facebook"><Facebook className="h-4 w-4" /></SocialLink>
             <SocialLink href={CONTACT.fanpage} label="Fan page de Facebook"><Users className="h-4 w-4" /></SocialLink>
             <SocialLink href={CONTACT.whatsappUrl} label="WhatsApp"><MessageCircle className="h-4 w-4" /></SocialLink>
@@ -122,6 +125,7 @@ export function Footer() {
             <ContactLink href={CONTACT.whatsappUrl} external>+595 975 484333</ContactLink>
             <ContactLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</ContactLink>
             <ContactLink href={CONTACT.instagram} external>Instagram</ContactLink>
+            <ContactLink href={CONTACT.tiktok} external>TikTok</ContactLink>
             <ContactLink href={CONTACT.facebook} external>Facebook</ContactLink>
             <ContactLink href={CONTACT.fanpage} external>Fan page</ContactLink>
             <li>

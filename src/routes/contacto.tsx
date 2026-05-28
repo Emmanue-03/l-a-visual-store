@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Facebook, Instagram, Mail, MapPin, MessageCircle, Users } from "lucide-react";
 import { WHATSAPP_URL } from "@/lib/mock-data";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 // Datos de contacto oficiales L&A
 const CONTACT = {
@@ -10,6 +11,8 @@ const CONTACT = {
   fanpage: "https://www.facebook.com/share/17ogkTMjfG/?mibextid=wwXIfr",
   instagram: "https://www.instagram.com/lya_multiventas?igsh=MTkxOGUzbmp4NXZr",
   instagramHandle: "@lya_multiventas",
+  tiktok: "https://www.tiktok.com/@lya_multiventas?_r=1&_t=ZS-96jl2hPaB7d",
+  tiktokHandle: "@lya_multiventas",
   email: "javieladio@msn.com",
 };
 
@@ -71,6 +74,15 @@ function ContactPage() {
                 <div className="font-semibold text-brand-deep">Instagram</div>
                 <a href={CONTACT.instagram} target="_blank" rel="noreferrer" className="text-muted-foreground transition hover:text-brand-royal">
                   {CONTACT.instagramHandle}
+                </a>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <TikTokIcon className="mt-0.5 h-5 w-5 text-brand-royal" />
+              <div>
+                <div className="font-semibold text-brand-deep">TikTok</div>
+                <a href={CONTACT.tiktok} target="_blank" rel="noreferrer" className="text-muted-foreground transition hover:text-brand-royal">
+                  {CONTACT.tiktokHandle}
                 </a>
               </div>
             </li>
