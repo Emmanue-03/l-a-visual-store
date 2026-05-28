@@ -23,7 +23,11 @@ function Index() {
     .filter((p) => p.isNewArrival || p.badge === "Nuevo")
     .concat(products.slice(-4))
     .slice(0, 4);
-  const deals = products.filter((p) => p.oldPrice).slice(0, 4);
+  // Hot Sale banner = productos con descuento real (oldPrice) o marcados
+  // como Oferta desde el admin (badge="Oferta").
+  const deals = products
+    .filter((p) => p.oldPrice || p.badge === "Oferta")
+    .slice(0, 4);
 
   return (
     <>

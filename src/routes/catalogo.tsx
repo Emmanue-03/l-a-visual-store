@@ -80,7 +80,10 @@ function CatalogPage() {
   const filtered = useMemo(() => {
     const catKey = normSlug(cat);
     let list = products.slice();
-    if (catKey === "ofertas") list = list.filter((p) => p.oldPrice);
+    // "Ofertas" incluye productos con descuento real (oldPrice) Y los
+    // marcados como Oferta desde el admin (badge). Antes solo miraba
+    // oldPrice y los badges seteados a "Oferta" se perdían.
+    if (catKey === "ofertas") list = list.filter((p) => p.oldPrice || p.badge === "Oferta");
     else if (catKey === "nuevos") list = list.filter((p) => p.badge === "Nuevo");
     else if (catKey !== "todas") {
       const target = categoryBySlug.get(catKey);
@@ -95,7 +98,11 @@ function CatalogPage() {
       case "menor": list = [...list].sort((a, b) => a.price - b.price); break;
       case "mayor": list = [...list].sort((a, b) => b.price - a.price); break;
       case "nuevos": list = list.filter((p) => p.badge === "Nuevo").concat(list.filter((p) => p.badge !== "Nuevo")); break;
-      case "ofertas": list = list.filter((p) => p.oldPrice).concat(list.filter((p) => !p.oldPrice)); break;
+      case "ofertas": {
+        const isOffer = (p: typeof list[number]) => !!p.oldPrice || p.badge === "Oferta";
+        list = list.filter(isOffer).concat(list.filter((p) => !isOffer(p)));
+        break;
+      }
     }
     return list;
   }, [q, cat, sort, products, categoryBySlug]);
