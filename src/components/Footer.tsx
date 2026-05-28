@@ -1,9 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { FormEvent, useState } from "react";
-import { Facebook, Instagram, MessageCircle } from "lucide-react";
+import { Facebook, Instagram, MessageCircle, Users } from "lucide-react";
 import { Logo } from "./Logo";
 
 const PAYMENTS = ["VISA", "MC", "AMEX", "MP", "TRANSF.", "EFECTIVO"];
+
+// Datos de contacto oficiales L&A
+const CONTACT = {
+  whatsappUrl: "https://wa.me/595975484333",
+  facebook: "https://www.facebook.com/share/1UvD2q8rWa/?mibextid=wwXIfr",
+  fanpage: "https://www.facebook.com/share/17ogkTMjfG/?mibextid=wwXIfr",
+  instagram: "https://www.instagram.com/lya_multiventas?igsh=MTkxOGUzbmp4NXZr",
+  email: "javieladio@msn.com",
+};
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -68,9 +77,10 @@ export function Footer() {
           </form>
 
           <div className="mt-5 flex gap-2">
-            <SocialLink href="#" label="Instagram"><Instagram className="h-4 w-4" /></SocialLink>
-            <SocialLink href="#" label="Facebook"><Facebook className="h-4 w-4" /></SocialLink>
-            <SocialLink href="#" label="WhatsApp"><MessageCircle className="h-4 w-4" /></SocialLink>
+            <SocialLink href={CONTACT.instagram} label="Instagram"><Instagram className="h-4 w-4" /></SocialLink>
+            <SocialLink href={CONTACT.facebook} label="Facebook"><Facebook className="h-4 w-4" /></SocialLink>
+            <SocialLink href={CONTACT.fanpage} label="Fan page de Facebook"><Users className="h-4 w-4" /></SocialLink>
+            <SocialLink href={CONTACT.whatsappUrl} label="WhatsApp"><MessageCircle className="h-4 w-4" /></SocialLink>
           </div>
         </div>
 
@@ -104,16 +114,24 @@ export function Footer() {
             { l: "Preguntas frecuentes", to: "/contacto" },
           ]}
         />
-        <FooterCol
-          title="Contacto"
-          items={[
-            { l: "WhatsApp directo", to: "/contacto" },
-            { l: "contacto@lamultiventas.com", to: "/contacto" },
-            { l: "Lun–Sáb · 9 a 20 hs", to: "/contacto" },
-            { l: "Mayoristas", to: "/contacto" },
-            { l: "Seguir pedido", to: "/contacto" },
-          ]}
-        />
+        <div>
+          <h5 className="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-white">
+            Contacto
+          </h5>
+          <ul className="mt-4 space-y-2.5 text-[14px]">
+            <ContactLink href={CONTACT.whatsappUrl} external>+595 975 484333</ContactLink>
+            <ContactLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</ContactLink>
+            <ContactLink href={CONTACT.instagram} external>Instagram</ContactLink>
+            <ContactLink href={CONTACT.facebook} external>Facebook</ContactLink>
+            <ContactLink href={CONTACT.fanpage} external>Fan page</ContactLink>
+            <li>
+              <span className="inline-flex items-center gap-2 text-white/70">
+                <span className="h-1 w-1 rounded-full bg-brand-gold/60" />
+                Lun–Sáb · 9 a 20 hs
+              </span>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div className="border-t border-white/[0.08]">
@@ -167,6 +185,29 @@ function FooterCol({
   );
 }
 
+function ContactLink({
+  href,
+  external,
+  children,
+}: {
+  href: string;
+  external?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <li>
+      <a
+        href={href}
+        {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+        className="group inline-flex items-center gap-2 text-white/70 transition hover:text-brand-gold"
+      >
+        <span className="h-1 w-1 rounded-full bg-brand-gold/60 transition group-hover:bg-brand-gold" />
+        {children}
+      </a>
+    </li>
+  );
+}
+
 function SocialLink({
   href,
   label,
@@ -179,6 +220,8 @@ function SocialLink({
   return (
     <a
       href={href}
+      target="_blank"
+      rel="noreferrer"
       aria-label={label}
       className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/75 transition hover:-translate-y-0.5 hover:border-brand-gold/50 hover:bg-white/10 hover:text-white"
     >
