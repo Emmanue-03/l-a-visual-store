@@ -18,6 +18,14 @@ const productRouteId = (product: Product) =>
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
+  // Stock real: solo lo respetamos como tope si es un número > 0. Si viene
+  // 0/undefined/null no significa "no podes agregar" — significa que no
+  // estamos trackeando inventario para esta card. El badge "Sin stock"
+  // se decide aparte (hasStockField + stock === 0).
+  const stockNumber = typeof product.stock === "number" ? product.stock : null;
+  const hasStockLimit = stockNumber !== null && stockNumber > 0;
+  const isOutOfStock = stockNumber === 0;
+
   const gallery = product.gallery?.length
     ? product.gallery
     : [
@@ -30,11 +38,21 @@ export function ProductCard({ product }: { product: Product }) {
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
 
+  const decrease = () => setQty((value) => Math.max(1, value - 1));
+  const increase = () =>
+    setQty((value) => (hasStockLimit ? Math.min(stockNumber!, value + 1) : value + 1));
+
   const addToCart = () => {
-    add(product, qty);
+    if (isOutOfStock) {
+      toast.error("Producto sin stock disponible");
+      return;
+    }
+    const safeQty = Math.max(1, qty);
+    add(product, safeQty);
     toast.success("Producto agregado al carrito", {
-      description: `${qty} x ${product.name}`,
+      description: `${safeQty} x ${product.name}`,
     });
+    setQty(1);
   };
 
   return (
@@ -93,7 +111,9 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="truncate rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-royal">
             {product.category}
           </span>
-          <span className="text-[10px] font-semibold text-muted-foreground">Stock {product.stock}</span>
+          <span className={`text-[10px] font-semibold ${isOutOfStock ? "text-rose-600" : "text-muted-foreground"}`}>
+            {isOutOfStock ? "Sin stock" : hasStockLimit ? `Stock ${stockNumber}` : "Disponible"}
+          </span>
         </div>
         <Link to="/producto/$id" params={{ id: productRouteId(product) }} className="line-clamp-2 min-h-[2.75rem] font-display font-bold leading-snug text-brand-deep transition-colors hover:text-brand-royal">
           {product.name}
@@ -106,29 +126,35 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-brand-royal/10 bg-brand-soft/60 p-1">
           <button
-            onClick={() => setQty((value) => Math.max(1, value - 1))}
+            type="button"
+            onClick={(e) => { e.stopPropagation(); decrease(); }}
+            disabled={qty <= 1 || isOutOfStock}
             aria-label="Restar cantidad"
-            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep transition hover:bg-white hover:text-brand-royal"
+            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep transition hover:bg-white hover:text-brand-royal disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
-          <span className="min-w-8 text-center text-sm font-bold text-brand-deep">{qty}</span>
+          <span className="min-w-8 text-center text-sm font-bold text-brand-deep tabular-nums">{qty}</span>
           <button
-            onClick={() => setQty((value) => Math.min(product.stock, value + 1))}
+            type="button"
+            onClick={(e) => { e.stopPropagation(); increase(); }}
+            disabled={isOutOfStock || (hasStockLimit && qty >= stockNumber!)}
             aria-label="Sumar cantidad"
-            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep transition hover:bg-white hover:text-brand-royal"
+            className="grid h-8 w-8 place-items-center rounded-lg text-brand-deep transition hover:bg-white hover:text-brand-royal disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
         </div>
         <div className="mt-2 flex gap-2">
           <button
-            onClick={addToCart}
-            className="group/btn relative flex flex-1 items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-brand-royal to-brand-deep px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg btn-glow"
+            type="button"
+            onClick={(e) => { e.stopPropagation(); addToCart(); }}
+            disabled={isOutOfStock}
+            className="group/btn relative flex flex-1 items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-brand-royal to-brand-deep px-3 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg btn-glow disabled:cursor-not-allowed disabled:from-slate-400 disabled:to-slate-500 disabled:shadow-none"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
             <ShoppingCart className="h-4 w-4" />
-            Agregar
+            {isOutOfStock ? "Sin stock" : "Agregar"}
           </button>
           <Link
             to="/producto/$id"
