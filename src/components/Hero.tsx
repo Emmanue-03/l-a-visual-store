@@ -64,7 +64,7 @@ export function Hero() {
       />
 
       <div className="mx-auto max-w-[1240px] px-4 sm:px-7">
-        <div className="grid items-center gap-12 pb-20 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14 lg:pb-[88px] lg:pt-12">
+        <div className="grid items-center gap-8 pb-14 pt-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-10 lg:pb-16 lg:pt-10">
           {/* Left: copy */}
           <div className="la-anim-up">
             <div className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-white/85 backdrop-blur sm:text-[12px] sm:tracking-[0.14em]">
@@ -106,7 +106,7 @@ export function Hero() {
               </button>
             </form>
 
-            <h1 className="mt-8 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance sm:mt-9">
+            <h1 className="mt-5 max-w-[18ch] font-display text-[clamp(32px,4.6vw,54px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance sm:mt-6">
               Todo para vender,
               <br />
               regalar y{" "}
@@ -115,15 +115,15 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="mt-6 max-w-[50ch] text-[16px] leading-[1.6] text-white/75 sm:text-[17px]">
+            <p className="mt-4 max-w-[50ch] text-[15.5px] leading-[1.55] text-white/75 sm:text-[16.5px]">
               Celulares, perfumes, termos y <span className="font-semibold text-white">Hoppies personalizables</span>{" "}
               con stock real, precios para reventa y atención rápida por WhatsApp.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 to="/catalogo"
-                className="group relative inline-flex h-14 items-center gap-2.5 overflow-hidden rounded-full bg-white px-7 font-bold text-[#0B1B3F] shadow-[0_18px_40px_-16px_rgba(255,255,255,.45)] transition hover:-translate-y-0.5"
+                className="group relative inline-flex h-12 items-center gap-2.5 overflow-hidden rounded-full bg-white px-6 font-bold text-[#0B1B3F] shadow-[0_18px_40px_-16px_rgba(255,255,255,.45)] transition hover:-translate-y-0.5"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-[120%] bg-[linear-gradient(110deg,transparent_30%,rgba(212,162,76,.35)_50%,transparent_70%)] transition-transform duration-700 group-hover:translate-x-[120%]" />
                 <span className="relative">Ver catálogo</span>
@@ -132,7 +132,7 @@ export function Hero() {
               <Link
                 to="/catalogo"
                 search={{ tag: "ofertas" }}
-                className="group inline-flex h-14 items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.06] px-7 font-bold text-white backdrop-blur transition hover:-translate-y-0.5 hover:border-brand-gold/60 hover:bg-white/[0.12]"
+                className="group inline-flex h-12 items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.06] px-6 font-bold text-white backdrop-blur transition hover:-translate-y-0.5 hover:border-brand-gold/60 hover:bg-white/[0.12]"
               >
                 <Flame className="h-4 w-4 text-brand-gold" />
                 Ver ofertas activas
@@ -140,7 +140,7 @@ export function Hero() {
             </div>
 
             {/* Hero strip */}
-            <div className="mt-11 flex flex-wrap gap-x-8 gap-y-5 border-t border-white/[0.08] pt-7">
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/[0.08] pt-4">
               <Stat k="+1.2k" v="Clientes felices" />
               <Sep />
               <Stat k="+500" v="Productos" />
@@ -148,14 +148,14 @@ export function Hero() {
               <Stat k="24/7" v="WhatsApp" />
               <Sep />
               <div className="min-w-0">
-                <div className="font-display text-[26px] font-bold leading-none">
+                <div className="font-display text-[22px] font-bold leading-none">
                   4.9
-                  <span className="ml-1 text-[14px] font-medium text-white/55">/ 5</span>
+                  <span className="ml-1 text-[13px] font-medium text-white/55">/ 5</span>
                 </div>
-                <div className="mt-1 flex items-center gap-1.5 text-[11.5px] uppercase tracking-[0.14em] text-white/55">
+                <div className="mt-1 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] text-white/55">
                   <span className="inline-flex items-center gap-0.5 text-brand-gold">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-brand-gold" />
+                      <Star key={i} className="h-3 w-3 fill-brand-gold" />
                     ))}
                   </span>
                   Reseñas verificadas
@@ -165,7 +165,7 @@ export function Hero() {
           </div>
 
           {/* Right: stage with orbits */}
-          <div className="relative mx-auto h-[400px] w-full max-w-[520px] lg:mt-2 lg:h-[460px]">
+          <div className="relative mx-auto h-[340px] w-full max-w-[480px] lg:h-[380px]">
             <div
               aria-hidden
               className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/[0.12] la-rotate"
@@ -221,14 +221,14 @@ export function Hero() {
 function Stat({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <div className="font-display text-[26px] font-bold leading-none">{k}</div>
-      <div className="mt-1 text-[11.5px] uppercase tracking-[0.14em] text-white/55">{v}</div>
+      <div className="font-display text-[22px] font-bold leading-none">{k}</div>
+      <div className="mt-1 text-[10.5px] uppercase tracking-[0.14em] text-white/55">{v}</div>
     </div>
   );
 }
 
 function Sep() {
-  return <div aria-hidden className="hidden h-12 w-px self-stretch bg-white/[0.08] sm:block" />;
+  return <div aria-hidden className="hidden h-10 w-px self-stretch bg-white/[0.08] sm:block" />;
 }
 
 function Badge({ icon, text }: { icon: React.ReactNode; text: string }) {
