@@ -1,12 +1,21 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Grid2x2, Heart, Menu, ShoppingCart, Sparkles, X } from "lucide-react";
+import { Facebook, Grid2x2, Heart, Instagram, Menu, MessageCircle, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { ProductSearch } from "./ProductSearch";
+import { TikTokIcon } from "./icons/TikTokIcon";
 import { useCart } from "@/lib/cart-context";
 import { categories as fallbackCategories } from "@/lib/mock-data";
 import type { Category, Product } from "@/lib/catalog-types";
+import { CONTACT } from "@/lib/contact";
 import { cn } from "@/lib/utils";
+
+const SOCIALS = [
+  { href: CONTACT.instagram, label: "Instagram", icon: Instagram },
+  { href: CONTACT.tiktok, label: "TikTok", icon: TikTokIcon },
+  { href: CONTACT.facebook, label: "Facebook", icon: Facebook },
+  { href: CONTACT.whatsappUrl, label: "WhatsApp", icon: MessageCircle },
+] as const;
 
 type NavbarProps = {
   categories?: Category[];
@@ -75,6 +84,21 @@ export function Navbar({
 
         {/* Tools */}
         <div className="flex items-center justify-self-end gap-2 lg:gap-2.5">
+          <div className="hidden items-center gap-1.5 lg:flex">
+            {SOCIALS.map(({ href, label, icon: Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="grid h-[40px] w-[40px] place-items-center rounded-full border border-brand-soft bg-white text-brand-muted transition hover:-translate-y-0.5 hover:border-brand-royal hover:text-brand-royal hover:shadow-card"
+              >
+                <Icon className="h-[18px] w-[18px]" />
+              </a>
+            ))}
+          </div>
+
           <Link
             to="/catalogo"
             aria-label="Favoritos"
@@ -188,6 +212,20 @@ export function Navbar({
             >
               Contacto
             </Link>
+            <div className="flex items-center justify-center gap-2 px-1 pt-2">
+              {SOCIALS.map(({ href, label, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="grid h-[40px] w-[40px] place-items-center rounded-full border border-brand-soft bg-white text-brand-muted transition hover:border-brand-royal hover:text-brand-royal"
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}

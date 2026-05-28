@@ -3,18 +3,9 @@ import { FormEvent, useState } from "react";
 import { Facebook, Instagram, MessageCircle, Users } from "lucide-react";
 import { Logo } from "./Logo";
 import { TikTokIcon } from "./icons/TikTokIcon";
+import { CONTACT } from "@/lib/contact";
 
 const PAYMENTS = ["VISA", "MC", "AMEX", "MP", "TRANSF.", "EFECTIVO"];
-
-// Datos de contacto oficiales L&A
-const CONTACT = {
-  whatsappUrl: "https://wa.me/595975484333",
-  facebook: "https://www.facebook.com/share/1UvD2q8rWa/?mibextid=wwXIfr",
-  fanpage: "https://www.facebook.com/share/17ogkTMjfG/?mibextid=wwXIfr",
-  instagram: "https://www.instagram.com/lya_multiventas?igsh=MTkxOGUzbmp4NXZr",
-  tiktok: "https://www.tiktok.com/@lya_multiventas?_r=1&_t=ZS-96jl2hPaB7d",
-  email: "javieladio@msn.com",
-};
 
 export function Footer() {
   const [email, setEmail] = useState("");
