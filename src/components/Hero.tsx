@@ -86,27 +86,27 @@ export function Hero() {
             <form
               onSubmit={submitSearch}
               role="search"
-              className="mt-6 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] pl-5 pr-1.5 backdrop-blur transition focus-within:border-brand-gold/60 focus-within:bg-white/[0.14] focus-within:shadow-[0_0_0_4px_rgba(212,162,76,.18)]"
+              className="mt-4 flex h-[54px] w-full max-w-[560px] items-center gap-2 rounded-full border border-brand-soft bg-white pl-5 pr-1.5 shadow-[0_18px_40px_-18px_rgba(11,27,63,.45),0_0_0_1px_rgba(212,162,76,.18)] transition focus-within:border-brand-gold/60 focus-within:shadow-[0_22px_44px_-18px_rgba(11,27,63,.55),0_0_0_4px_rgba(212,162,76,.22)]"
             >
-              <Search className="h-[18px] w-[18px] shrink-0 text-white/70" />
+              <Search className="h-[18px] w-[18px] shrink-0 text-brand-muted" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar termos, Hoppies, perfumes, celulares…"
                 aria-label="Buscar productos"
-                className="min-w-0 flex-1 bg-transparent text-[14.5px] text-white outline-none placeholder:text-white/55 sm:text-[15px]"
+                className="min-w-0 flex-1 bg-transparent text-[14.5px] text-brand-deep outline-none placeholder:text-brand-muted sm:text-[15px]"
               />
               <button
                 type="submit"
                 aria-label="Buscar"
-                className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[13.5px] font-bold text-[#0B1B3F] transition hover:bg-brand-gold-soft sm:px-5"
+                className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-full bg-brand-deep px-4 text-[13.5px] font-bold text-white transition hover:bg-brand-royal sm:px-5"
               >
                 <span className="hidden sm:inline">Buscar</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
 
-            <h1 className="mt-6 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
+            <h1 className="mt-10 max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.04] tracking-[-0.035em] text-balance">
               Todo para vender,
               <br />
               regalar y{" "}
