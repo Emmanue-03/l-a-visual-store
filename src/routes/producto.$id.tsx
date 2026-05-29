@@ -1,11 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ShoppingCart, ShieldCheck, Truck, Headphones, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { ProductCard } from "@/components/ProductCard";
-import { getCatalog } from "@/backend/catalog";
+import { useCatalog } from "@/lib/catalog-client";
 
 const slugify = (value: string) =>
   value
@@ -17,39 +17,50 @@ const slugify = (value: string) =>
 
 export const Route = createFileRoute("/producto/$id")({
   component: ProductDetail,
-  loader: async ({ params }) => {
-    const catalog = await getCatalog();
-    const p = catalog.products.find((x) => x.slug === params.id || x.id === params.id || slugify(x.name) === params.id);
-    if (!p) throw notFound();
-    const norm = (value?: string | null) => (value ?? "").trim().toLowerCase();
-    const baseKey = norm(p.category);
-    const related = catalog.products
-      .filter((product) => norm(product.category) === baseKey && product.id !== p.id)
-      .slice(0, 4);
-    return { product: p, related };
-  },
-  head: ({ loaderData }) => ({
-    meta: loaderData ? [
-      { title: `${loaderData.product.name} | L&A Multiventas` },
-      { name: "description", content: loaderData.product.description },
-      { property: "og:image", content: loaderData.product.image },
-    ] : [],
+  head: () => ({
+    meta: [{ title: "Producto | L&A Multiventas" }],
   }),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-md py-24 text-center">
-      <h1 className="font-display text-3xl font-bold text-brand-deep">Producto no encontrado</h1>
-      <Link to="/catalogo" className="mt-5 inline-block rounded-full bg-brand-royal px-5 py-2.5 text-sm font-semibold text-white">Volver al catálogo</Link>
-    </div>
-  ),
   errorComponent: ({ error }) => <div className="p-10">Error: {error.message}</div>,
 });
 
+const norm = (value?: string | null) => (value ?? "").trim().toLowerCase();
+
 function ProductDetail() {
-  const { product, related } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const { data: catalog } = useCatalog();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-  const gallery = product.gallery ?? [product.image, product.image, product.image];
   const [active, setActive] = useState(0);
+
+  // Busqueda del producto por slug / id / nombre-slugificado (antes en el loader).
+  const product =
+    catalog?.products.find(
+      (x) => x.slug === id || x.id === id || slugify(x.name) === id,
+    ) ?? null;
+  const related = product
+    ? catalog!.products
+        .filter((p) => norm(p.category) === norm(product.category) && p.id !== product.id)
+        .slice(0, 4)
+    : [];
+
+  if (!product) {
+    // catalog === undefined ⇒ todavia cargando; si ya cargo y no esta ⇒ no existe.
+    if (!catalog) {
+      return (
+        <div className="mx-auto max-w-md py-24 text-center text-muted-foreground">
+          Cargando producto…
+        </div>
+      );
+    }
+    return (
+      <div className="mx-auto max-w-md py-24 text-center">
+        <h1 className="font-display text-3xl font-bold text-brand-deep">Producto no encontrado</h1>
+        <Link to="/catalogo" className="mt-5 inline-block rounded-full bg-brand-royal px-5 py-2.5 text-sm font-semibold text-white">Volver al catálogo</Link>
+      </div>
+    );
+  }
+
+  const gallery = product.gallery ?? [product.image, product.image, product.image];
   const discount = product.oldPrice ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) : 0;
   const addToCart = () => {
     add(product, qty);

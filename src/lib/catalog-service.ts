@@ -1,4 +1,4 @@
-import { getCatalog, getProductBySlugOrId } from "@/backend/catalog";
+import { getCatalog, getProductBySlugOrId } from "@/lib/catalog-client";
 
 export const catalogService = {
   list: getCatalog,

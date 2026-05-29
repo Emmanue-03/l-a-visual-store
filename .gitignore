@@ -8,9 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-# dist/ SE COMMITEA a proposito: Hostinger despliega desde el repo y NO
-# compila en el server, asi que necesita el build ya hecho (ver DEPLOY-HOSTINGER.md).
-# Recorda correr `npm run build:node` y commitear dist/ antes de desplegar.
+# dist/ NO se commitea: Hostinger recompila con `npm run build` y sus propias
+# variables VITE_* (que se inyectan en build). Commitear dist local hornearia
+# datos mock. El build estatico SPA sale en dist/client (ver DEPLOY-HOSTINGER.md).
+dist
 dist-ssr
 .output
 .vinxi

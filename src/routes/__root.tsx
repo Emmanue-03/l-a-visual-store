@@ -17,7 +17,7 @@ import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { Toaster } from "@/components/ui/sonner";
-import { getCatalog } from "@/backend/catalog";
+import { useCatalog } from "@/lib/catalog-client";
 
 function NotFoundComponent() {
   return (
@@ -56,7 +56,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  loader: () => getCatalog(),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -110,39 +109,47 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const catalog = Route.useLoaderData();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayout />
+    </QueryClientProvider>
+  );
+}
+
+// Layout dentro del QueryClientProvider para poder usar useCatalog (React Query).
+// El catalogo se lee en el cliente; mientras carga usamos fallbacks seguros.
+function RootLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isAdminRoute = pathname.startsWith("/admin");
+  const { data: catalog } = useCatalog();
 
   if (isAdminRoute) {
     return (
-      <QueryClientProvider client={queryClient}>
+      <>
         <Outlet />
         <Toaster position="bottom-right" />
-      </QueryClientProvider>
+      </>
     );
   }
 
+  const whatsappPhone = catalog?.settings.whatsappPhone ?? "595975484333";
+  const categories = catalog?.categories ?? [];
+  const products = catalog?.products ?? [];
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <div className="flex min-h-screen flex-col bg-[var(--paper,#FBFAF7)]">
-          <Topbar whatsappPhone={catalog.settings.whatsappPhone} />
-          <Navbar
-            categories={catalog.categories}
-            products={catalog.products}
-            whatsappPhone={catalog.settings.whatsappPhone}
-          />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <Footer />
-          <CartDrawer whatsappPhone={catalog.settings.whatsappPhone} />
-          <WhatsAppFab whatsappPhone={catalog.settings.whatsappPhone} />
-          <Toaster position="bottom-right" />
-        </div>
-      </CartProvider>
-    </QueryClientProvider>
+    <CartProvider>
+      <div className="flex min-h-screen flex-col bg-[var(--paper,#FBFAF7)]">
+        <Topbar whatsappPhone={whatsappPhone} />
+        <Navbar categories={categories} products={products} whatsappPhone={whatsappPhone} />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+        <CartDrawer whatsappPhone={whatsappPhone} />
+        <WhatsAppFab whatsappPhone={whatsappPhone} />
+        <Toaster position="bottom-right" />
+      </div>
+    </CartProvider>
   );
 }
 

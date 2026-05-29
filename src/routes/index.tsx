@@ -6,15 +6,16 @@ import { DealsSection } from "@/components/DealsSection";
 import { BrandsStrip } from "@/components/BrandsStrip";
 import { BenefitsSection } from "@/components/BenefitsSection";
 import { CategoriesSection } from "@/components/CategoriesSection";
-import { getCatalog } from "@/backend/catalog";
+import { useCatalog } from "@/lib/catalog-client";
 
 export const Route = createFileRoute("/")({
-  loader: () => getCatalog(),
   component: Index,
 });
 
 function Index() {
-  const { products, categories } = Route.useLoaderData();
+  const { data } = useCatalog();
+  const products = data?.products ?? [];
+  const categories = data?.categories ?? [];
 
   const bestSellers = products
     .filter((p) => p.isBestSeller || p.badge === "Top venta" || p.rating >= 4.7)

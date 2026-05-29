@@ -1,7 +1,8 @@
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ShieldCheck, Truck, MessageCircle, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useCatalog } from "@/lib/catalog-client";
 import { createCheckoutWhatsAppUrl, formatPrice } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/carrito")({
@@ -10,9 +11,17 @@ export const Route = createFileRoute("/carrito")({
 });
 
 function useRootSettings() {
-  // Read settings from the root loader so we don't refetch the catalog here.
-  const root = useLoaderData({ from: "__root__" });
-  return root.settings;
+  // Settings desde el catalogo (React Query, fetch compartido). Mientras carga,
+  // usamos valores por defecto seguros.
+  const { data: catalog } = useCatalog();
+  return (
+    catalog?.settings ?? {
+      storeName: "L&A Multiventas",
+      whatsappPhone: "595975484333",
+      currency: "PYG",
+      defaultShippingCost: 0,
+    }
+  );
 }
 
 const productRouteId = (product: { slug?: string; name: string; id: string }) =>

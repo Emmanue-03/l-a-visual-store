@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Search, SlidersHorizontal } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
-import { getCatalog } from "@/backend/catalog";
+import { useCatalog } from "@/lib/catalog-client";
 
 export const Route = createFileRoute("/catalogo")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -10,7 +10,6 @@ export const Route = createFileRoute("/catalogo")({
     tag: typeof search.tag === "string" ? search.tag : undefined,
     q: typeof search.q === "string" ? search.q : undefined,
   }),
-  loader: () => getCatalog(),
   component: CatalogPage,
   head: () => ({
     meta: [
@@ -33,9 +32,10 @@ const categoryFromSearch = (search: { categoria?: string; tag?: string }) => {
 
 function CatalogPage() {
   const search = Route.useSearch();
-  const catalog = Route.useLoaderData();
-  const { products, categories } = catalog;
-  const usingMock = catalog.source === "mock";
+  const { data: catalog } = useCatalog();
+  const products = catalog?.products ?? [];
+  const categories = catalog?.categories ?? [];
+  const usingMock = catalog?.source === "mock";
 
   const [q, setQ] = useState(search.q ?? "");
   const [cat, setCat] = useState<string>(() => categoryFromSearch(search));
