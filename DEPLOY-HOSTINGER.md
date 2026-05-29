@@ -10,6 +10,30 @@ caía a la carpeta vacía.
 
 ---
 
+## ⚠️ Importante si desplegás desde el repositorio (Git)
+
+`dist/` ahora **se commitea al repo a propósito** (se sacó del `.gitignore`), porque
+Hostinger trae el código desde git pero **NO compila en el servidor**. Si `dist/` no
+estuviera en el repo, el server no tendría los archivos compilados y la app no
+arrancaría (volvés al 403).
+
+Flujo cada vez que cambiás algo:
+
+```bash
+npm run build:node          # genera dist/
+git add dist                # incluye el build actualizado
+git commit -m "build"
+git push
+```
+
+Después, en Hostinger: hacé el **deploy/pull** del repo y **reiniciá la app Node**
+(un git pull solo NO reinicia el proceso).
+
+Y verificá que en hPanel → Node.js el **startup file** sea `scripts/node-server.mjs`
+y que la app figure como **Running**.
+
+---
+
 ## Opción recomendada: compilar local y subir `dist/`
 
 El bundle SSR ya incluye TODAS las dependencias adentro, así que en el servidor
