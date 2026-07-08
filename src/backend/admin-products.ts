@@ -56,8 +56,8 @@ async function getCategoriesMap() {
 
 async function readProducts(): Promise<DbProduct[]> {
   const [rows, categories] = await Promise.all([
-    restSelect<DbProduct>("products", { select: "*", order: "created_at.desc" }).catch(() => []),
-    getCategoriesMap().catch(() => ({})),
+    restSelect<DbProduct>("products", { select: "*", order: "created_at.desc" }).catch(() => [] as DbProduct[]),
+    getCategoriesMap().catch(() => ({}) as Record<string, Category>),
   ]);
 
   // Devuelve filas crudas (snake_case) enriquecidas con el slug/nombre de la
