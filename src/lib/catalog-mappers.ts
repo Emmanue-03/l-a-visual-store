@@ -41,6 +41,7 @@ export type DbProduct = {
   is_new_arrival?: boolean | null;
   seo_title?: string | null;
   seo_description?: string | null;
+  sort_order?: number | null;
 };
 
 export function mapDbCategory(category: DbCategory, count = 0): Category {
@@ -72,7 +73,7 @@ export function mapDbProduct(product: DbProduct): Product {
     reviews: product.reviews_count ?? 0,
     category: product.category_slug ?? "",
     categoryId: product.category_id ?? null,
-    categoryName: product.category_name,
+    categoryName: product.category_name ?? undefined,
     image: product.image_url,
     gallery: product.gallery_urls ?? [],
     badge: product.badge ?? undefined,

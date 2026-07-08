@@ -64,7 +64,7 @@ function AdminProducts() {
 
   const rows: ProductRow[] = useMemo(
     () =>
-      products.map((p) => ({
+      products.map((p: any) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,

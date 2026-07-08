@@ -39,7 +39,7 @@ function AdminInventory() {
 
   const rows: Row[] = useMemo(
     () =>
-      products.map((p) => ({
+      products.map((p: any) => ({
         id: p.id,
         name: p.name,
         sku: p.sku ?? "—",

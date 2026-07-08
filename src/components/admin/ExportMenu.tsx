@@ -80,7 +80,6 @@ export function ExportMenu({ filename, rows, columns }: Props) {
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text(new Date().toLocaleString("es-PY"), 14, 24);
-      // @ts-expect-error – autoTable extends jsPDF prototype at runtime
       (autoTable.default ?? autoTable)(doc, {
         startY: 30,
         head: [cols],

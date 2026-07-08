@@ -119,7 +119,7 @@ function AdminDashboard() {
             <Empty icon={ShoppingBag} text="Cuando entren pedidos los vas a ver acá." />
           ) : (
             <div className="divide-y divide-mg-line/60">
-              {recentOrders.map((o) => (
+              {recentOrders.map((o: any) => (
                 <div key={o.id} className="grid grid-cols-[1fr_auto] items-center gap-3 px-5 py-3 hover:bg-mg-ink-soft/40 transition">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ function AdminDashboard() {
             <Empty icon={Package} text="Sin alertas de stock 🎉" />
           ) : (
             <div className="divide-y divide-mg-line/60">
-              {lowStock.map((p) => (
+              {lowStock.map((p: any) => (
                 <div key={p.id} className="flex items-center gap-3 px-5 py-3 hover:bg-mg-ink-soft/40 transition">
                   {p.imageUrl ? (
                     <img src={p.imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover ring-1 ring-mg-line" />

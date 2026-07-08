@@ -47,7 +47,7 @@ function AdminReports() {
           <p className="mt-3 text-sm text-mg-muted">Aún no hay pedidos para reportar.</p>
         ) : (
           <ul className="mt-3 divide-y divide-mg-line">
-            {recentOrders.map((o) => (
+            {recentOrders.map((o: any) => (
               <li key={o.id} className="flex items-center justify-between py-2 text-sm">
                 <div>
                   <span className="font-mono font-bold text-[color:var(--mg-magenta)]">{o.order_number}</span>{" "}

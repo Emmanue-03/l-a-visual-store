@@ -46,7 +46,7 @@ function AdminCategoriesPage() {
 
   const filtered = useMemo(
     () =>
-      categories.filter((category) => {
+      categories.filter((category: AdminCategoryRow) => {
         const text = `${category.name} ${category.slug} ${category.icon ?? ""}`.toLowerCase();
         const matchesText = text.includes(query.toLowerCase());
         const matchesFilter =
@@ -62,8 +62,8 @@ function AdminCategoriesPage() {
   const stats = useMemo(
     () => ({
       total: categories.length,
-      active: categories.filter((c) => c.is_active).length,
-      featured: categories.filter((c) => c.is_featured).length,
+      active: categories.filter((c: AdminCategoryRow) => c.is_active).length,
+      featured: categories.filter((c: AdminCategoryRow) => c.is_featured).length,
     }),
     [categories],
   );
@@ -168,7 +168,7 @@ function AdminCategoriesPage() {
         </div>
       ) : (
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((category) => {
+          {filtered.map((category: AdminCategoryRow) => {
             const Icon = resolveCategoryIcon(category.icon);
             return (
               <article

@@ -27,7 +27,8 @@ const isStaticSpaBuild = lifecycle === "build";
 const disableCloudflare = isBundledServerBuild || isStaticSpaBuild;
 
 export default defineConfig({
-  cloudflare: disableCloudflare ? false : undefined,
+  // El wrapper acepta `cloudflare` en runtime pero su tipado no lo expone.
+  ...(disableCloudflare ? ({ cloudflare: false } as Record<string, unknown>) : {}),
   tanstackStart: {
     server: { entry: "server" },
     // Modo SPA estatico: prerenderea solo el shell a index.html y la app corre
