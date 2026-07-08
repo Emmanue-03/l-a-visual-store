@@ -60,16 +60,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "L&A Multiventas | Tu multitienda online de confianza" },
-      { name: "description", content: "Comprá fácil, rápido y seguro en L&A Multiventas. Tecnología, hogar, accesorios, electrodomésticos, ofertas y mucho más." },
-      { property: "og:title", content: "L&A Multiventas | Tu multitienda online" },
-      { property: "og:description", content: "Tecnología, hogar, accesorios y mucho más. Atención por WhatsApp." },
+      { title: "Blanc Dental Studio | Odontología premium en Asunción" },
+      { name: "description", content: "Clínica odontológica moderna en Asunción. Diseño de sonrisa, ortodoncia, implantes y odontopediatría con tecnología de última generación." },
+      { property: "og:title", content: "Blanc Dental Studio | Sonrisas que inspiran" },
+      { property: "og:description", content: "Estética dental, ortodoncia, implantes y más. Tecnología premium con calidez humana." },
       { property: "og:type", content: "website" },
-      {
-        property: "og:image",
-        content:
-          "https://res.cloudinary.com/dqhnjdrl8/image/upload/v1779795525/WhatsApp_Image_2026-05-25_at_17.03.30_1_th8cc3.jpg",
-      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -121,9 +116,20 @@ function RootComponent() {
 function RootLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isAdminRoute = pathname.startsWith("/admin");
+  const isLanding = pathname === "/";
   const { data: catalog } = useCatalog();
 
   if (isAdminRoute) {
+    return (
+      <>
+        <Outlet />
+        <Toaster position="bottom-right" />
+      </>
+    );
+  }
+
+  // Landing rediseñada (Blanc Dental Studio) trae su propio header/footer.
+  if (isLanding) {
     return (
       <>
         <Outlet />
